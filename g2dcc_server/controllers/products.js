@@ -181,7 +181,6 @@ module.exports = {
         stock,
         isFeatured,
       } = req.body;
-
       // Validate brand_id
       if (brandId) {
         const brandCheck = await db.query(

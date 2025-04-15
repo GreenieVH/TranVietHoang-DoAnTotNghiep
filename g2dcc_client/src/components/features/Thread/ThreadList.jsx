@@ -3,7 +3,7 @@ import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { IoEllipsisVerticalCircleSharp } from "react-icons/io5";
 import { LuDot } from "react-icons/lu";
-import { useThread } from "../../context/ThreadContext";
+import { useThread } from "../../../context/ThreadContext";
 
 export default function ThreadList() {
   const navigate = useNavigate();

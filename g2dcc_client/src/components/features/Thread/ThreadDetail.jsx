@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useThread } from "../../context/ThreadContext";
-import { useUser } from "../../context/UserContext";
+import { useThread } from "../../../context/ThreadContext";
+import { useUser } from "../../../context/UserContext";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import socket from "../../services/socket";
+import socket from "../../../services/socket";
 
 export default function ThreadDetail() {
   const { id } = useParams();

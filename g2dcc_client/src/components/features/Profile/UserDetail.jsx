@@ -5,7 +5,7 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { IoMdHelpCircle } from "react-icons/io";
 import { MdFeedback } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import user_default from "../../assets/Images/img_user_default.png";
 
 

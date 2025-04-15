@@ -1,8 +1,8 @@
 import React from "react";
 import { Row, Col, Carousel, Typography } from "antd";
 import { useProducts } from "../hooks/useProducts";
-import ProductCard from "../components/features/ProductCard";
-import ProductFilter from "../components/features/ProductFilter";
+import ProductCard from "../components/features/Product/ProductCard";
+import ProductFilter from "../components/features/Product/ProductFilter";
 import { getCategories } from "../api/category";
 import { getBrands } from "../api/brand";
 
