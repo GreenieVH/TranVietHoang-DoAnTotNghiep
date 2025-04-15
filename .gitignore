@@ -1,0 +1,38 @@
+# ---------------------
+# Common Rules (Chung)
+# ---------------------
+# Environment files
+.env
+.env.local
+.env*.local
+# Log files
+*.log
+logs/
+# Editor/IDE
+.DS_Store
+.idea/
+.vscode/
+*.pid
+*.seed
+
+# ---------------------
+# React Client (g2dcc_client)
+# ---------------------
+g2dcc_client/node_modules/
+g2dcc_client/build/
+g2dcc_client/.cache/
+g2dcc_client/dist/
+g2dcc_client/coverage/
+g2dcc_client/.eslintcache
+g2dcc_client/.env
+g2dcc_client/.env.*
+
+# ---------------------
+# Node.js Server (g2dcc_server)
+# ---------------------
+g2dcc_server/node_modules/
+g2dcc_server/dist/
+g2dcc_server/.nyc_output/
+g2dcc_server/coverage/
+g2dcc_server/.env
+g2dcc_server/.env.*
