@@ -11,7 +11,7 @@ import {
   message,
   Upload,
 } from "antd";
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined } from "@ant-design/icons";
 import { useBrands } from "../../../hooks/useBrands";
 import { useCategories } from "../../../hooks/useCategorys";
 import { useToast } from "../../../context/ToastContext";
@@ -95,9 +95,9 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
   }, [productId, form, brands, categories]);
 
   const beforeUpload = (file) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      message.error('Bạn chỉ có thể tải lên file ảnh!');
+      message.error("Bạn chỉ có thể tải lên file ảnh!");
     }
     return isImage;
   };
@@ -165,15 +165,15 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
       });
       // Tạo FormData để gửi cả file ảnh
       const formData = new FormData();
-      formData.append('name', values.name);
-      formData.append('categoryId', values.categoryId);
-      formData.append('brandId', values.brandId);
-      formData.append('description', values.description);
-      formData.append('basePrice', values.basePrice);
-      formData.append('stock', values.stock);
-      formData.append('isFeatured', values.isFeatured || false);
+      formData.append("name", values.name);
+      formData.append("categoryId", values.categoryId);
+      formData.append("brandId", values.brandId);
+      formData.append("description", values.description);
+      formData.append("basePrice", values.basePrice);
+      formData.append("stock", values.stock);
+      formData.append("isFeatured", values.isFeatured || false);
       if (mainImage) {
-        formData.append('image', mainImage);
+        formData.append("image", mainImage);
       }
 
       let product;
@@ -183,6 +183,14 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
       } else {
         product = await createProduct(formData);
         showToast("Thêm sản phẩm thành công!", "success");
+      }
+      // Log FormData (cần hàm helper để xem)
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(key, `[File] ${value.name} (${value.size} bytes)`);
+        } else {
+          console.log(key, value);
+        }
       }
 
       // Handle variants
@@ -237,7 +245,7 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
         onFinish={handleSubmit}
         initialValues={{ isFeatured: false }}
       >
-         <Form.Item label="Ảnh sản phẩm">
+        <Form.Item label="Ảnh sản phẩm">
           <Upload
             name="image"
             listType="picture"
@@ -252,11 +260,11 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
           >
             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
           </Upload>
-          {mainImage && typeof mainImage === 'string' && (
-            <img 
-              src={mainImage} 
-              alt="Product" 
-              style={{ width: 100, marginTop: 10 }} 
+          {mainImage && typeof mainImage === "string" && (
+            <img
+              src={mainImage}
+              alt="Product"
+              style={{ width: 100, marginTop: 10 }}
             />
           )}
         </Form.Item>

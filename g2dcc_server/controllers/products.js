@@ -2,6 +2,7 @@ const db = require("../config/db");
 const productQueries = require("../queries/products");
 const { v4: uuidv4 } = require("uuid");
 const slugify = require("slugify");
+const { uploadToCloudinary, cloudinary } = require("../utils/cloudinary");
 
 module.exports = {
   // Lấy danh sách sản phẩm
@@ -71,15 +72,22 @@ module.exports = {
   createProduct: async (req, res) => {
     try {
       const {
-        name,
+        name = "",
         categoryId,
         brandId,
-        description,
+        description = "",
         basePrice,
         stock,
         isFeatured,
       } = req.body;
 
+      // Kiểm tra tên hợp lệ
+      if (!name || typeof name !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Product name is required and must be a string",
+        });
+      }
       // Kiểm tra brand hợp lệ
       const brandCheck = await db.query(
         "SELECT 1 FROM brands WHERE id = $1 AND is_active = true",
@@ -116,6 +124,24 @@ module.exports = {
           success: false,
           message: "Product with this name already exists",
         });
+      }
+
+      // Xử lý upload ảnh nếu có
+      if (req.file) {
+        const imgUrl = await uploadToCloudinary(
+          req.file.buffer,
+          "product_images"
+        );
+
+        // Lưu vào bảng product_images
+        await db.query(productQueries.addProductImage, [
+          result.rows[0].id, // product_id
+          null, // variant_id (null nếu là ảnh chính của sản phẩm)
+          imgUrl,
+          true, // is_primary
+          `Ảnh chính của ${name}`,
+          1, // display_order
+        ]);
       }
 
       // Tạo slug và kiểm tra trùng
@@ -173,14 +199,22 @@ module.exports = {
     try {
       const { id } = req.params;
       const {
-        name,
+        name = "",
         categoryId,
         brandId,
-        description,
+        description = "",
         basePrice,
         stock,
         isFeatured,
       } = req.body;
+
+      // Validate name
+      if (!name || typeof name !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Product name is required and must be a string",
+        });
+      }
       // Validate brand_id
       if (brandId) {
         const brandCheck = await db.query(
@@ -194,6 +228,31 @@ module.exports = {
             message: "Invalid brand ID",
           });
         }
+      }
+
+      // Xử lý ảnh nếu có
+      if (req.file) {
+        // Xóa ảnh cũ (nếu cần)
+        await db.query(
+          `DELETE FROM product_images 
+         WHERE product_id = $1 AND is_primary = true`,
+          [id]
+        );
+
+        // Upload và thêm ảnh mới
+        const imgUrl = await uploadToCloudinary(
+          req.file.buffer,
+          "product_images"
+        );
+
+        await db.query(productQueries.addProductImage, [
+          id,
+          null,
+          imgUrl,
+          true,
+          `Ảnh chính của ${name}`,
+          1,
+        ]);
       }
 
       // Tạo slug từ tên sản phẩm

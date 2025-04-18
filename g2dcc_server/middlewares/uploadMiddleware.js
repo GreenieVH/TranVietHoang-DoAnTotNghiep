@@ -6,5 +6,7 @@ const upload = multer({ storage });
 
 // 🎯 Middleware xử lý upload ảnh
 const uploadMiddleware = upload.single("img");
+const uploadImageMiddleware = upload.single("image");
 
-module.exports = { uploadMiddleware };
+
+module.exports = { uploadMiddleware,uploadImageMiddleware };
