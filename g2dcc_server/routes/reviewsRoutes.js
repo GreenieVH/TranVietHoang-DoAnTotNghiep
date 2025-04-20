@@ -4,7 +4,7 @@ const reviewController = require("../controllers/reviews");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 // Public routes
-router.get("/product/:productId", reviewController.getProductReviews);
+router.get("/:productId", reviewController.getProductReviews);
 
 // Protected routes
 router.post("/", authMiddleware, reviewController.createReview);

@@ -198,10 +198,10 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
         const variantPromises = variantFields.map(async (variant, index) => {
           const variantData = {
             color: variant.color,
-            batteryCapacity: variant.batteryCapacity,
-            motorPower: variant.motorPower,
+            battery_capacity: variant.batteryCapacity,
+            motor_power: variant.motorPower,
             speed: variant.speed,
-            rangePerCharge: variant.rangePerCharge,
+            range_per_charge: variant.rangePerCharge,
             price: variant.price,
             stock: variant.stock,
             weight: variant.weight,

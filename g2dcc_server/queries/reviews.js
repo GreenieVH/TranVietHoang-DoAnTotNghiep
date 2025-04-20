@@ -1,5 +1,5 @@
 module.exports = {
-    getProductReviews: `
+  getProductReviews: `
       SELECT 
         r.*,
         u.username,
@@ -10,16 +10,16 @@ module.exports = {
       ORDER BY r.created_at DESC
       LIMIT $2 OFFSET $3
     `,
-  
-    createReview: `
+
+  createReview: `
       INSERT INTO reviews (
         user_id, product_id, variant_id, rating, title, comment, is_buy
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `,
-  
-    getUserReviews: `
+
+  getUserReviews: `
       SELECT 
         r.*,
         p.name as "productName",
@@ -34,8 +34,8 @@ module.exports = {
       ORDER BY r.created_at DESC
       LIMIT $2 OFFSET $3
     `,
-  
-    updateReview: `
+
+  updateReview: `
       UPDATE reviews
       SET 
         rating = $1,
@@ -45,23 +45,23 @@ module.exports = {
       WHERE id = $4 AND user_id = $5
       RETURNING *
     `,
-  
-    deleteReview: `
+
+  deleteReview: `
       DELETE FROM reviews
       WHERE id = $1 AND user_id = $2
       RETURNING id
     `,
-  
-    getReviewStats: `
-      SELECT 
-        COUNT(*) as total,
-        AVG(rating) as average,
-        COUNT(*) FILTER (WHERE rating = 5) as five_star,
-        COUNT(*) FILTER (WHERE rating = 4) as four_star,
-        COUNT(*) FILTER (WHERE rating = 3) as three_star,
-        COUNT(*) FILTER (WHERE rating = 2) as two_star,
-        COUNT(*) FILTER (WHERE rating = 1) as one_star
-      FROM reviews
-      WHERE product_id = $1 AND is_approved = true
-    `
-  };
+
+  getReviewStats: `
+  SELECT 
+    COUNT(*) as total,
+    AVG(rating) as average,
+    COUNT(*) FILTER (WHERE rating >= 4.5 AND rating <= 5) as five_star,
+    COUNT(*) FILTER (WHERE rating >= 3.5 AND rating < 4.5) as four_star,
+    COUNT(*) FILTER (WHERE rating >= 2.5 AND rating < 3.5) as three_star,
+    COUNT(*) FILTER (WHERE rating >= 1.5 AND rating < 2.5) as two_star,
+    COUNT(*) FILTER (WHERE rating >= 0.5 AND rating < 1.5) as one_star
+  FROM reviews
+  WHERE product_id = $1 AND is_approved = true
+`,
+};

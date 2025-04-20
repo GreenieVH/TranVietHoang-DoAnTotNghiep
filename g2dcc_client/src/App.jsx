@@ -17,6 +17,7 @@ import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import Product from "./pages/Product";
 import AdminCategoryList from "./pages/Admin/AdminCategoryList";
 import AdminProductList from "./pages/Admin/AdminProductList";
+import ProductDetailPage from "./pages/ProductDetail";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
                 <Route path="thread/:id" element={<ThreadDetail />} />
               </Route>
               <Route path="/products" element={<Product />} />
+              <Route path="/products/:id" element={<ProductDetailPage />} />
             </Route>
           </Route>
 
