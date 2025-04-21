@@ -25,7 +25,7 @@ export const createReview = async (reviewData) => {
 
 export const updateReview = async (reviewId, reviewData) => {
   try {
-    const response = await API.put(`/reviews/${reviewId}`, reviewData);
+    const response = await APIAUTH.put(`/reviews/${reviewId}`, reviewData);
     return response.data;
   } catch (error) {
     console.error('Error updating review:', error);

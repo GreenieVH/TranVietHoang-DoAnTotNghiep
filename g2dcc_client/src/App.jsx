@@ -18,6 +18,7 @@ import Product from "./pages/Product";
 import AdminCategoryList from "./pages/Admin/AdminCategoryList";
 import AdminProductList from "./pages/Admin/AdminProductList";
 import ProductDetailPage from "./pages/ProductDetail";
+import AdminBrandList from "./pages/Admin/AdminBrandList";
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
                 <Route path="user-lists" element={<AdminUserLists />} />
                 <Route path="category-lists" element={<AdminCategoryList />} />
                 <Route path="product-lists" element={<AdminProductList />} />
+                <Route path="brand-lists" element={<AdminBrandList />} />
               </Route>
             </Route>
           </Route>

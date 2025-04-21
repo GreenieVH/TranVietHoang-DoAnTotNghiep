@@ -81,6 +81,11 @@ function AdminNavbar() {
           label: "Products",
           onClick: () => navigate("/admin/product-lists"),
         },
+        {
+          key: "Brand",
+          label: "brand",
+          onClick: () => navigate("/admin/brand-lists"),
+        },
       ],
     },
   ];

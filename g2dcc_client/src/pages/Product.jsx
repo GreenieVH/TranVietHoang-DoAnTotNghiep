@@ -26,7 +26,7 @@ const Product = () => {
     const loadBrands = async () => {
       try {
         const data = await getBrands();
-        setBrands(data);
+        setBrands(data.data);
       } catch (error) {
         console.error("Error loading brands:", error);
       }

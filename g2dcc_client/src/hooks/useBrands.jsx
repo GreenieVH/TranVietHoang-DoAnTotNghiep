@@ -10,7 +10,7 @@ export const useBrands = () => {
     try {
       setLoading(true);
       const response = await getBrands();
-      setBrands(response);
+      setBrands(response.data);
     } catch (err) {
       setError(err);
     } finally {

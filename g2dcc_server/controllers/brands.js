@@ -6,8 +6,26 @@ const slugify = require('slugify');
 module.exports = {
   getAllBrands: async (req, res) => {
     try {
-      const result = await db.query(brandQueries.getAllBrands);
-      res.json({ success: true, data: result.rows });
+      const { page = 1, limit = 10, search } = req.query;
+      const offset = (page - 1) * limit;
+
+      // Get paginated brands
+      const brandsResult = await db.query(brandQueries.getAllBrands, [limit, offset]);
+      
+      // Get total count
+      const countResult = await db.query(brandQueries.countAllBrands);
+      const total = parseInt(countResult.rows[0].count, 10);
+
+      res.json({
+        success: true,
+        data: brandsResult.rows,
+        pagination: {
+          total,
+          page: parseInt(page, 10),
+          pages: Math.ceil(total / limit),
+          limit: parseInt(limit, 10)
+        }
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: 'Server error' });
