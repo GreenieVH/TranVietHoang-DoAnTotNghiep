@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 
 function UserLayout() {
   return (
-    <div className="max-w-[1536px] w-screen mx-auto">
+    <div className="max-w-[1536px] w-screen mx-auto bg-gbg text-gtext">
       <UserHeader />
         <Outlet />
       <UserFooter />

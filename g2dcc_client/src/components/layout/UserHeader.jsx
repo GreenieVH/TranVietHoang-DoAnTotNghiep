@@ -79,7 +79,7 @@
 // export default UserHeader;
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useUser } from "../../context/UserContext";
 import {
@@ -103,6 +103,8 @@ import {
 } from "antd";
 import user_default from "../../assets/Images/img_user_default.png";
 import logo from "../../assets/Images/logoxm.png"; // Thay bằng logo của bạn
+import CartBadge from "../common/CartBadge";
+import WishlistBadge from "../common/WishlistBadge";
 
 const UserHeader = () => {
   const { value, setValue } = useLocalStorage("theme", "light");
@@ -227,26 +229,14 @@ const UserHeader = () => {
               </button>
 
               {/* Wishlist */}
-              <button
-                className="p-2 rounded-full hover:bg-gray-100 group relative"
-                onClick={() => navigate("/wishlist")}
-              >
-                <IoHeartOutline className="w-5 h-5 text-thead  group-hover:text-gray-700" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  3
-                </span>
-              </button>
+              <Link to="/wishlist">
+                <WishlistBadge />
+              </Link>
 
               {/* Cart */}
-              <button
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative"
-                onClick={() => navigate("/cart")}
-              >
-                <IoCartOutline className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  5
-                </span>
-              </button>
+              <Link to="/cart">
+                <CartBadge />
+              </Link>
 
               {/* User Avatar */}
               {user ? (

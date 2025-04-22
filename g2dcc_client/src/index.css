@@ -10,16 +10,16 @@
   -moz-osx-font-smoothing: grayscale;
 }
 [data-theme="light"] {
-  --color-gbg: oklch(0.985 0 0);
-  --color-gtext: oklch(0.373 0.034 259.733);
-  --color-ghead: oklch(20.08% 0.031 263.61);
-  --color-thead: oklch(0.987 0.026 102.212);
+  --color-gbg: oklch(98% 0.01 200);
+  --color-gtext: oklch(25% 0.03 280);
+  --color-ghead: oklch(92% 0.02 240);
+  --color-thead: oklch(30% 0.02 260);
 }
 [data-theme="dark"] {
-  --color-gbg: oklch(0.372 0.044 257.287);
-  --color-gtext: oklch(0.946 0.033 307.174);
-  --color-ghead: oklch(0.21 0.034 264.665);
-  --color-thead: oklch(0.987 0.026 102.212);
+  --color-gbg: oklch(15% 0.02 260);
+  --color-gtext: oklch(85% 0.015 240);
+  --color-ghead: oklch(20% 0.03 240);
+  --color-thead: oklch(90% 0.02 220);
 }
 @theme {
   --color-gbg: var(--color-gbg);

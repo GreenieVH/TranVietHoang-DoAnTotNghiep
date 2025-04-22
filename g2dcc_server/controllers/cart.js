@@ -4,7 +4,7 @@ const cartQueries = require("../queries/cart");
 module.exports = {
   getCart: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
 
       // Get or create cart
       let cart = await db.query("SELECT id FROM cart WHERE user_id = $1", [
@@ -12,10 +12,10 @@ module.exports = {
       ]);
 
       if (cart.rows.length === 0) {
-        cart = await db.query(
-          "INSERT INTO cart (user_id) VALUES ($1) RETURNING id",
-          [userId]
-        );
+        return res.json({
+          success: true,
+          message : 'Không có giỏ hàng nào cho người dùng này',
+        });
       }
 
       const cartId = cart.rows[0].id;
@@ -39,7 +39,7 @@ module.exports = {
 
   addToCart: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { productId, variantId, quantity = 1 } = req.body;
 
       // Validate product
@@ -116,7 +116,7 @@ module.exports = {
 
   updateCartItem: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { itemId } = req.params;
       const { quantity } = req.body;
 
@@ -187,7 +187,7 @@ module.exports = {
 
   removeCartItem: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { itemId } = req.params;
 
       // Get cart
@@ -226,7 +226,7 @@ module.exports = {
 
   clearCart: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
 
       // Get cart
       const cart = await db.query("SELECT id FROM cart WHERE user_id = $1", [

@@ -19,6 +19,7 @@ import {
 import { ShoppingCartOutlined, HeartOutlined } from "@ant-design/icons";
 import { getProductById } from "../api/product";
 import ReviewSection from "../components/features/Product/ReviewSection";
+import AddToCartButton from "../components/common/AddToCartButton";
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -194,15 +195,7 @@ const ProductDetailPage = () => {
 
             {/* Action Buttons */}
             <Space size="large" style={{ margin: "24px 0" }}>
-              <Button
-                type="primary"
-                size="large"
-                icon={<ShoppingCartOutlined />}
-                onClick={handleAddToCart}
-                disabled={product.stock <= 0}
-              >
-                Thêm vào giỏ hàng
-              </Button>
+              <AddToCartButton productId={product.id} variantId={selectedVariant?.id} stock={product.stock} compact={false}/>
               <Button
                 size="large"
                 icon={<HeartOutlined />}

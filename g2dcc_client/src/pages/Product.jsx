@@ -5,6 +5,7 @@ import ProductCard from "../components/features/Product/ProductCard";
 import ProductFilter from "../components/features/Product/ProductFilter";
 import { getCategories } from "../api/category";
 import { getBrands } from "../api/brand";
+import LoadingPage from "@/components/common/LoadingPage";
 
 const { Title } = Typography;
 
@@ -45,6 +46,9 @@ const Product = () => {
     setFilterParams(params);
     fetchProducts(params);
   };
+  if (loading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

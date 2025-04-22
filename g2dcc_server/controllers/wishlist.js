@@ -4,7 +4,7 @@ const wishlistQueries = require('../queries/wishlist');
 module.exports = {
   getWishlist: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { page = 1, limit = 10 } = req.query;
       const offset = (page - 1) * limit;
 
@@ -38,7 +38,7 @@ module.exports = {
 
   addToWishlist: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { productId } = req.body;
 
       // Validate product
@@ -78,7 +78,7 @@ module.exports = {
 
   removeFromWishlist: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { productId } = req.params;
 
       const result = await db.query(wishlistQueries.removeFromWishlist, [
@@ -104,7 +104,7 @@ module.exports = {
 
   checkInWishlist: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { productId } = req.params;
 
       const result = await db.query(wishlistQueries.checkInWishlist, [

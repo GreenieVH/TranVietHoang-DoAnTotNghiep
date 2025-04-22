@@ -6,6 +6,7 @@ module.exports = {
         p.name,
         p.slug,
         p.base_price as "basePrice",
+        p.description,
         (SELECT pi.image_url FROM product_images pi 
          WHERE pi.product_id = p.id 
          ORDER BY pi.is_primary DESC LIMIT 1) as "imageUrl",

@@ -19,6 +19,8 @@ import AdminCategoryList from "./pages/Admin/AdminCategoryList";
 import AdminProductList from "./pages/Admin/AdminProductList";
 import ProductDetailPage from "./pages/ProductDetail";
 import AdminBrandList from "./pages/Admin/AdminBrandList";
+import CartPage from "./pages/Cart";
+import WishlistPage from "./pages/Wishlist";
 
 function App() {
   return (
@@ -42,6 +44,8 @@ function App() {
               </Route>
               <Route path="/products" element={<Product />} />
               <Route path="/products/:id" element={<ProductDetailPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
             </Route>
           </Route>
 
