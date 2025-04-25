@@ -18,6 +18,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusOutlined,
+  ArrowRightOutlined,
 } from "@ant-design/icons";
 import {
   getCart,
@@ -27,10 +28,12 @@ import {
   clearCart,
 } from "@/api/cart";
 import { useToast } from "../context/ToastContext";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
 const CartPage = () => {
+  const navigate = useNavigate();
   const showToast = useToast();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -96,6 +99,7 @@ const CartPage = () => {
       showToast("Lỗi khi xóa giỏ hàng", "error");
     }
   };
+
   // Handle item selection
   const handleSelectItem = (itemId, checked) => {
     if (checked) {
@@ -122,6 +126,21 @@ const CartPage = () => {
     return cart.items
       .filter((item) => selectedItems.includes(item.id))
       .reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  // Handle checkout
+  const handleCheckout = () => {
+    if (selectedItems.length === 0) {
+      showToast("Vui lòng chọn ít nhất một sản phẩm để đặt hàng", "warning");
+      return;
+    }
+
+    // Lưu các sản phẩm đã chọn vào localStorage
+    const selectedProducts = cart.items.filter(item => selectedItems.includes(item.id));
+    localStorage.setItem('cart', JSON.stringify(selectedProducts));
+    
+    // Chuyển đến trang đặt hàng
+    navigate('/orders/new');
   };
 
   // Columns for cart table
@@ -266,8 +285,14 @@ const CartPage = () => {
                 </Button>
               </Popconfirm>
 
-              <Button type="primary" size="large">
-                Thanh toán ({selectedItems.length})
+              <Button 
+                type="primary" 
+                size="large"
+                icon={<ArrowRightOutlined />}
+                onClick={handleCheckout}
+                disabled={selectedItems.length === 0}
+              >
+                Đặt hàng ({selectedItems.length})
               </Button>
             </Space>
           </>

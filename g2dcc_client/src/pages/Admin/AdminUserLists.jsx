@@ -5,12 +5,14 @@ import EditUserForm from "../../components/features/Admin/EditUserForm";
 import { useToast } from "../../context/ToastContext";
 import { TbEdit, TbSearch } from "react-icons/tb";
 import { LiaUserLockSolid } from "react-icons/lia";
+import useUsers from "../../hooks/useUsers";
 
 const { Search } = Input;
 const { Option } = Select;
 
 const AdminUserLists = () => {
-  const { users, updateUser, refreshAllUsers } = useUser();
+  const { updateUser } = useUser();
+  const { users, fetchUsers } = useUsers();
   const showToast = useToast();
   const [editingUser, setEditingUser] = useState(null);
   const [pagination, setPagination] = useState({
@@ -39,7 +41,7 @@ const AdminUserLists = () => {
       const resup = await updateUser(id, newData);
       showToast(resup.message);
       setEditingUser(null);
-      refreshAllUsers();
+      fetchUsers();
     } catch (error) {
       showToast(error.message, "error");
     }
@@ -49,7 +51,7 @@ const AdminUserLists = () => {
     try {
       const resup = await updateUser(id, { active: !isBanned });
       showToast(resup.message);
-      refreshAllUsers();
+      fetchUsers();
     } catch (error) {
       showToast(error.message, "error");
     }

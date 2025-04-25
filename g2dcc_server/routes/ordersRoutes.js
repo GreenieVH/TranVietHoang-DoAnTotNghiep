@@ -2,17 +2,19 @@ const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/orders");
 const authMiddleware = require("../middlewares/authMiddleware");
+const adminMiddleware = require("../middlewares/adminMiddleware");
 
-// Protected routes
+// User routes
 router.post("/", authMiddleware, orderController.createOrder);
-router.get("/", authMiddleware, orderController.getUserOrders);
+router.post("/items", authMiddleware, orderController.addOrderItem);
+router.get("/user", authMiddleware, orderController.getUserOrders);
 router.get("/:id", authMiddleware, orderController.getOrderById);
 
-// Admin only routes
-router.put(
-  "/:id/status",
-  authMiddleware,
-  orderController.updateOrderStatus
-);
+// Admin routes
+router.get("/", authMiddleware, orderController.getOrders);
+router.patch("/:id/status", authMiddleware, orderController.updateOrderStatus);
+router.patch("/:id/shipment", authMiddleware, orderController.updateShipment);
+router.put("/:id/status", authMiddleware, adminMiddleware, orderController.updateOrderStatus);
+router.put("/:id/shipment", authMiddleware, adminMiddleware, orderController.updateShipment);
 
 module.exports = router;

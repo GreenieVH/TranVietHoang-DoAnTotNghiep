@@ -1,11 +1,10 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getAllUsers, getUserProfile, updatedUser } from "../api/user";
+import { getUserProfile, updatedUser } from "../api/user";
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [users, setUsers] = useState(null);
   const [loading, setLoading] = useState(false);
   const isAuthenticated = localStorage.getItem("user");
 
@@ -41,41 +40,11 @@ export const UserProvider = ({ children }) => {
     fetchProfile();
   }, [isAuthenticated]);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const fetchAllUsers = async () => {
-      try {
-        const res = await getAllUsers();
-        setUsers(res);
-      } catch (error) {
-        console.error("Lỗi khi lấy users:", error);
-        setUser(null);
-      }
-    };
-    fetchAllUsers();
-  }, [isAuthenticated]);
-
-  const refreshAllUsers = async () => {
-    try {
-      const res = await getAllUsers();
-      setUsers(res);
-    } catch (error) {
-      console.error("Lỗi khi lấy users:", error);
-      setUser(null);
-    }
-  };
+  
   const refreshProfile = async () => {
     try {
       const res = await getUserProfile();
       setUser(res);
-    } catch (error) {
-      console.error("Lỗi khi làm mới profile:", error.message);
-    }
-  };
-  const refreshUserLists = async () => {
-    try {
-      const res = await getAllUsers();
-      setUsers(res);
     } catch (error) {
       console.error("Lỗi khi làm mới profile:", error.message);
     }
@@ -98,12 +67,9 @@ export const UserProvider = ({ children }) => {
     <UserContext.Provider
       value={{
         user,
-        users,
         loading,
         refreshProfile,
-        refreshUserLists,
         updateUser,
-        refreshAllUsers,
       }}
     >
       {children}

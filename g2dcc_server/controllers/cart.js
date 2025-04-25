@@ -80,7 +80,7 @@ module.exports = {
       if (stock < quantity) {
         return res.status(400).json({
           success: false,
-          message: "Not enough stock available",
+          message: "Số lượng sản phẩm không đủ",
         });
       }
 
@@ -160,7 +160,7 @@ module.exports = {
       if (availableStock < quantity) {
         return res.status(400).json({
           success: false,
-          message: "Not enough stock available",
+          message: "Số lượng sản phẩm không đủ",
         });
       }
 

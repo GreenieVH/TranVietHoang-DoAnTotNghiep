@@ -21,6 +21,13 @@ import ProductDetailPage from "./pages/ProductDetail";
 import AdminBrandList from "./pages/Admin/AdminBrandList";
 import CartPage from "./pages/Cart";
 import WishlistPage from "./pages/Wishlist";
+// Import order components
+import OrderList from "./pages/OrderList";
+import OrderDetail from "./components/features/Order/OrderDetail";
+import OrderForm from "./components/features/Order/OrderForm";
+// Import admin order components
+import AdminOrderList from "./components/features/Admin/orders/AdminOrderList";
+import AdminOrderShipment from "./components/features/Admin/orders/AdminOrderShipment";
 
 function App() {
   return (
@@ -46,6 +53,10 @@ function App() {
               <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
+              {/* Order Routes */}
+              <Route path="/orders" element={<OrderList />} />
+              <Route path="/orders/new" element={<OrderForm />} />
+              <Route path="/orders/:id" element={<OrderDetail />} />
             </Route>
           </Route>
 
@@ -63,6 +74,10 @@ function App() {
                 <Route path="category-lists" element={<AdminCategoryList />} />
                 <Route path="product-lists" element={<AdminProductList />} />
                 <Route path="brand-lists" element={<AdminBrandList />} />
+                {/* Admin Order Routes */}
+                <Route path="orders" element={<AdminOrderList />} />
+                <Route path="orders/:id" element={<OrderDetail />} />
+                <Route path="orders/:id/shipment" element={<AdminOrderShipment />} />
               </Route>
             </Route>
           </Route>

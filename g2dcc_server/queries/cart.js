@@ -1,28 +1,44 @@
 module.exports = {
-    getCartByUser: `
-      SELECT 
-        c.id as "cartId",
-        json_agg(json_build_object(
-          'id', cp.id,
-          'productId', cp.product_id,
-          'variantId', cp.variant_id,
-          'quantity', cp.quantity,
-          'price', cp.price,
-          'productName', p.name,
-          'productImage', (SELECT pi.image_url FROM product_images pi 
-                           WHERE pi.product_id = p.id 
-                           ORDER BY pi.is_primary DESC LIMIT 1),
-          'variantColor', pv.color,
-          'stock', COALESCE(pv.stock, p.stock),
-          'maxQuantity', LEAST(COALESCE(pv.stock, p.stock), 10)
-        )) as items
-      FROM cart c
-      LEFT JOIN cart_products cp ON c.id = cp.cart_id
-      LEFT JOIN products p ON cp.product_id = p.id
-      LEFT JOIN product_variants pv ON cp.variant_id = pv.id
-      WHERE c.user_id = $1
-      GROUP BY c.id
-    `,
+  getCartByUser: `
+  WITH cart_items AS (
+    SELECT 
+      cp.id,
+      cp.product_id,
+      cp.variant_id,
+      cp.quantity,
+      cp.price,
+      p.name as product_name,
+      (SELECT pi.image_url FROM product_images pi 
+       WHERE pi.product_id = p.id 
+       ORDER BY pi.is_primary DESC LIMIT 1) as product_image,
+      pv.color as variant_color,
+      COALESCE(pv.stock, p.stock) as stock,
+      LEAST(COALESCE(pv.stock, p.stock), 10) as max_quantity
+    FROM cart_products cp
+    JOIN products p ON cp.product_id = p.id
+    LEFT JOIN product_variants pv ON cp.variant_id = pv.id
+    WHERE cp.cart_id = (SELECT id FROM cart WHERE user_id = $1)
+  )
+  SELECT 
+    c.id as "cartId",
+    COALESCE(
+      (SELECT json_agg(json_build_object(
+        'id', ci.id,
+        'productId', ci.product_id,
+        'variantId', ci.variant_id,
+        'quantity', ci.quantity,
+        'price', ci.price,
+        'productName', ci.product_name,
+        'productImage', ci.product_image,
+        'variantColor', ci.variant_color,
+        'stock', ci.stock,
+        'maxQuantity', ci.max_quantity
+      )) FROM cart_items ci),
+      '[]'::json
+    ) as items
+  FROM cart c
+  WHERE c.user_id = $1
+`,
   
     addToCart: `
       INSERT INTO cart_products (cart_id, product_id, variant_id, quantity, price)

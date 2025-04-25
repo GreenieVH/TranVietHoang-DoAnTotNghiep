@@ -43,9 +43,12 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { username, password } = req.body;
   try {
-    const user = await pool.query("SELECT * FROM users WHERE username = $1", [
-      username,
-    ]);
+    const user = await pool.query(`
+      SELECT u.*, r.name as role_name 
+      FROM users u
+      LEFT JOIN roles r ON u.role_id = r.id
+      WHERE u.username = $1
+    `, [username]);
 
     if (user.rows.length === 0)
       return res.status(400).json({ message: "Sai tài khoản hoặc mật khẩu!" });
@@ -57,9 +60,20 @@ const login = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Tài khoản của bạn đang bị khóa!" });
-    const accessToken = generateAccessToken({ id: user.rows[0].id, username });
+
+    // Include role in the token
+    const accessToken = generateAccessToken({ 
+      id: user.rows[0].id, 
+      username: user.rows[0].username,
+      role: user.rows[0].role_name 
+    });
+    
     const refreshToken = jwt.sign(
-      { id: user.rows[0].id, username },
+      { 
+        id: user.rows[0].id, 
+        username: user.rows[0].username, 
+        role: user.rows[0].role_name 
+      },
       REFRESH_KEY,
       { expiresIn: "15d" }
     );
@@ -68,14 +82,23 @@ const login = async (req, res) => {
       refreshToken,
       user.rows[0].id,
     ]);
-    // 🔥 Lưu refreshToken vào HttpOnly Cookie
+    
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true, // Ngăn JavaScript truy cập
-      secure: true, // Bật khi dùng HTTPS
-      sameSite: "None", // Hỗ trợ CORS
-      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 ngày
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 15 * 24 * 60 * 60 * 1000,
     });
-    res.status(201).json({ accessToken, message: "Đăng nhập thành công" });
+    
+    res.status(201).json({ 
+      accessToken, 
+      message: "Đăng nhập thành công",
+      user: {
+        id: user.rows[0].id,
+        username: user.rows[0].username,
+        role: user.rows[0].role_name
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
