@@ -28,6 +28,7 @@ import OrderForm from "./components/features/Order/OrderForm";
 // Import admin order components
 import AdminOrderList from "./components/features/Admin/orders/AdminOrderList";
 import AdminOrderShipment from "./components/features/Admin/orders/AdminOrderShipment";
+import AdminBannerList from "./pages/Admin/AdminBannerList";
 
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
                 <Route path="category-lists" element={<AdminCategoryList />} />
                 <Route path="product-lists" element={<AdminProductList />} />
                 <Route path="brand-lists" element={<AdminBrandList />} />
+                <Route path="banner-lists" element={<AdminBannerList />} />
                 {/* Admin Order Routes */}
                 <Route path="orders" element={<AdminOrderList />} />
                 <Route path="orders/:id" element={<OrderDetail />} />

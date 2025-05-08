@@ -202,6 +202,14 @@ module.exports = {
       const { id } = req.params;
       const { carrier, tracking_number, status } = req.body;
 
+      // Kiểm tra đầu vào
+      if (!carrier || !tracking_number || !status || !id) {
+        return res.status(400).json({
+          success: false,
+          message: 'Thiếu thông tin: carrier, tracking_number, status hoặc id',
+        });
+      }
+
       // Check if order exists
       const orderResult = await db.query(orderQueries.getOrderById, [id]);
 
@@ -220,12 +228,30 @@ module.exports = {
         });
       }
 
-      const result = await db.query(orderQueries.updateShipment, [
-        carrier,
-        tracking_number,
-        status,
-        id,
-      ]);
+      // Check if shipment exists
+      const shipmentResult = await db.query(
+        'SELECT id FROM order_shipments WHERE order_id = $1',
+        [id]
+      );
+
+      let result;
+      if (shipmentResult.rows.length === 0) {
+        // Create new shipment if not exists
+        result = await db.query(orderQueries.createOrderShipment, [
+          id,
+          null, // shipping_method_id is optional
+          carrier,
+          tracking_number
+        ]);
+      } else {
+        // Update existing shipment
+        result = await db.query(orderQueries.updateShipment, [
+          carrier,
+          tracking_number,
+          status,
+          id,
+        ]);
+      }
 
       res.json({
         success: true,

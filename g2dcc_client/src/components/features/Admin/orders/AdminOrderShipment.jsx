@@ -20,6 +20,7 @@ import {
   SaveOutlined,
   TruckOutlined
 } from '@ant-design/icons';
+import LoadingPage from '../../../common/LoadingPage';
 
 const { Option } = Select;
 
@@ -30,6 +31,7 @@ const AdminOrderShipment = () => {
   const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
   const showToast = useToast();
+  console.log(order);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -40,7 +42,7 @@ const AdminOrderShipment = () => {
         if (response.data.shipment) {
           form.setFieldsValue({
             carrier: response.data.shipment.carrier,
-            tracking_number: response.data.shipment.tracking_number,
+            tracking_number: response.data.shipment.trackingNumber,
             status: response.data.shipment.status
           });
         }
@@ -66,11 +68,7 @@ const AdminOrderShipment = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
-      </div>
-    );
+    return <LoadingPage />
   }
 
   return (
@@ -96,11 +94,14 @@ const AdminOrderShipment = () => {
             {format(new Date(order.created_at), 'dd/MM/yyyy HH:mm', { locale: vi })}
           </Descriptions.Item>
           <Descriptions.Item label="Khách hàng">
-            {order.user?.name}
+            {order.user?.username}
           </Descriptions.Item>
-          <Descriptions.Item label="Email">
-            {order.user?.email}
-          </Descriptions.Item>
+            <Descriptions.Item label="Email">
+              {order.user?.email}
+            </Descriptions.Item>
+            <Descriptions.Item label="Số điện thoại">
+              {order.user?.phone}
+            </Descriptions.Item>
         </Descriptions>
 
         <Form

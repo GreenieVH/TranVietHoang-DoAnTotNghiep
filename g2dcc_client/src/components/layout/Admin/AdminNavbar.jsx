@@ -90,6 +90,11 @@ function AdminNavbar() {
           label: "orders",
           onClick: () => navigate("/admin/orders"),
         },
+        {
+          key: "Banner",
+          label: "banners",
+          onClick: () => navigate("/admin/banner-lists"),
+        },
       ],
     },
   ];

@@ -62,6 +62,12 @@ module.exports = {
     getOrderById: `
       SELECT 
         o.*,
+        json_build_object(
+          'id', u.id,
+          'username', u.username,
+          'email', u.email,
+          'phone', u.phone
+        ) as user,
         (SELECT json_agg(json_build_object(
           'id', oi.id,
           'productId', oi.product_id,
@@ -91,6 +97,7 @@ module.exports = {
       WHERE os.order_id = o.id
       LIMIT 1) as shipment
       FROM orders o
+      LEFT JOIN users u ON o.user_id = u.id
       WHERE o.id = $1
     `,
   
@@ -111,6 +118,36 @@ module.exports = {
           updated_at = NOW()
       WHERE order_id = $2
       RETURNING *
+    `,
+  
+    updateShipment: `
+      WITH updated_shipment AS (
+        UPDATE order_shipments
+        SET 
+          carrier = $1,
+          tracking_number = $2,
+          status = $3::character varying,
+          shipped_at = (CASE 
+            WHEN $3::character varying = 'shipped' THEN CURRENT_TIMESTAMP
+            ELSE shipped_at
+          END),
+          delivered_at = (CASE 
+            WHEN $3::character varying = 'delivered' THEN CURRENT_TIMESTAMP
+            ELSE delivered_at
+          END),
+          updated_at = CURRENT_TIMESTAMP
+        WHERE order_id = $4
+        RETURNING *
+      )
+      SELECT json_build_object(
+        'id', us.id,
+        'carrier', us.carrier,
+        'trackingNumber', us.tracking_number,
+        'status', us.status,
+        'shippedAt', us.shipped_at,
+        'deliveredAt', us.delivered_at
+      ) as shipment
+      FROM updated_shipment us
     `,
   
     getOrders: `

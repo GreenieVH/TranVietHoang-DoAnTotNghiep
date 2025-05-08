@@ -141,7 +141,7 @@ module.exports = {
 
   getUserReviews: async (req, res) => {
     try {
-      const { userId } = req;
+      const  userId  =  req.user?.id;
       const { page = 1, limit = 10 } = req.query;
       const offset = (page - 1) * limit;
 
@@ -177,7 +177,8 @@ module.exports = {
 
   updateReview: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId  =  req.user?.id;
+      console.log(userId);
       const { reviewId } = req.params;
       const { rating, title, comment } = req.body;
 
@@ -218,7 +219,7 @@ module.exports = {
 
   deleteReview: async (req, res) => {
     try {
-      const { userId } = req;
+      const  userId  =  req.user?.id;
       const { reviewId } = req.params;
 
       // First get product_id for updating average later

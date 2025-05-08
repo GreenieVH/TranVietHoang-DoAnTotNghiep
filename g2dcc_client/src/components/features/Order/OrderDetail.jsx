@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getOrderById, updateOrderStatus, updateShipment } from '../../../api/orders';
+import { getOrderById, updateOrderStatus } from '../../../api/orders';
 import { formatCurrency } from '../../../utils/format';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -16,14 +16,11 @@ import {
   Spin,
   Modal,
   Form,
-  Input,
   Select,
-  message
 } from 'antd';
 import { 
   ArrowLeftOutlined, 
   CheckCircleOutlined, 
-  CloseCircleOutlined,
   TruckOutlined
 } from '@ant-design/icons';
 
@@ -36,9 +33,7 @@ const OrderDetail = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updateStatusModalVisible, setUpdateStatusModalVisible] = useState(false);
-  const [updateShipmentModalVisible, setUpdateShipmentModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [shipmentForm] = Form.useForm();
   const showToast = useToast();
 
   const fetchOrder = async () => {
@@ -65,17 +60,6 @@ const OrderDetail = () => {
       fetchOrder();
     } catch (error) {
       showToast(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái', 'error');
-    }
-  };
-
-  const handleUpdateShipment = async (values) => {
-    try {
-      await updateShipment(id, values);
-      showToast('Cập nhật thông tin vận chuyển thành công', 'success');
-      setUpdateShipmentModalVisible(false);
-      fetchOrder();
-    } catch (error) {
-      showToast(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin vận chuyển', 'error');
     }
   };
 
@@ -145,7 +129,7 @@ const OrderDetail = () => {
     <div className="container mx-auto px-4 py-8 min-h-screen">
       <Button 
         icon={<ArrowLeftOutlined />} 
-        onClick={() => navigate('/orders')}
+        onClick={() => navigate(user?.role === 'admin' || user?.role === 'staff' ? '/admin/orders' : '/orders')}
         className="mb-4"
       >
         Quay lại
@@ -165,9 +149,9 @@ const OrderDetail = () => {
               </Button>
               <Button 
                 icon={<TruckOutlined />}
-                onClick={() => setUpdateShipmentModalVisible(true)}
+                onClick={() => navigate(`/admin/orders/${id}/shipment`)}
               >
-                Cập nhật vận chuyển
+                Quản lý vận chuyển
               </Button>
             </Space>
           )
@@ -189,7 +173,7 @@ const OrderDetail = () => {
                 {order.shipment.carrier}
               </Descriptions.Item>
               <Descriptions.Item label="Mã vận đơn">
-                {order.shipment.tracking_number}
+                {order.shipment.trackingNumber}
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái vận chuyển">
                 {getStatusTag(order.shipment.status)}
@@ -218,85 +202,37 @@ const OrderDetail = () => {
       </Card>
 
       {user?.role === 'admin' && (
-        <>
-          <Modal
-            title="Cập nhật trạng thái đơn hàng"
-            open={updateStatusModalVisible}
-            onCancel={() => setUpdateStatusModalVisible(false)}
-            footer={null}
+        <Modal
+          title="Cập nhật trạng thái đơn hàng"
+          open={updateStatusModalVisible}
+          onCancel={() => setUpdateStatusModalVisible(false)}
+          footer={null}
+        >
+          <Form
+            form={form}
+            onFinish={handleUpdateStatus}
+            layout="vertical"
           >
-            <Form
-              form={form}
-              onFinish={handleUpdateStatus}
-              layout="vertical"
+            <Form.Item
+              name="status"
+              label="Trạng thái"
+              rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
             >
-              <Form.Item
-                name="status"
-                label="Trạng thái"
-                rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
-              >
-                <Select>
-                  <Option value="pending">Chờ xử lý</Option>
-                  <Option value="processing">Đang xử lý</Option>
-                  <Option value="shipped">Đang vận chuyển</Option>
-                  <Option value="delivered">Đã giao hàng</Option>
-                  <Option value="cancelled">Đã hủy</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Cập nhật
-                </Button>
-              </Form.Item>
-            </Form>
-          </Modal>
-
-          <Modal
-            title="Cập nhật thông tin vận chuyển"
-            open={updateShipmentModalVisible}
-            onCancel={() => setUpdateShipmentModalVisible(false)}
-            footer={null}
-          >
-            <Form
-              form={shipmentForm}
-              onFinish={handleUpdateShipment}
-              layout="vertical"
-            >
-              <Form.Item
-                name="carrier"
-                label="Đơn vị vận chuyển"
-                rules={[{ required: true, message: 'Vui lòng nhập đơn vị vận chuyển' }]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="tracking_number"
-                label="Mã vận đơn"
-                rules={[{ required: true, message: 'Vui lòng nhập mã vận đơn' }]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="status"
-                label="Trạng thái vận chuyển"
-                rules={[{ required: true, message: 'Vui lòng chọn trạng thái vận chuyển' }]}
-              >
-                <Select>
-                  <Option value="pending">Chờ xử lý</Option>
-                  <Option value="processing">Đang xử lý</Option>
-                  <Option value="shipped">Đang vận chuyển</Option>
-                  <Option value="delivered">Đã giao hàng</Option>
-                  <Option value="cancelled">Đã hủy</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Cập nhật
-                </Button>
-              </Form.Item>
-            </Form>
-          </Modal>
-        </>
+              <Select>
+                <Option value="pending">Chờ xử lý</Option>
+                <Option value="processing">Đang xử lý</Option>
+                <Option value="shipped">Đang vận chuyển</Option>
+                <Option value="delivered">Đã giao hàng</Option>
+                <Option value="cancelled">Đã hủy</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Cập nhật
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
       )}
     </div>
   );

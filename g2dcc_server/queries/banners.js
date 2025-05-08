@@ -29,8 +29,7 @@ module.exports = {
         is_active = $5,
         start_date = $6,
         end_date = $7,
-        banner_type = $8,
-        updated_at = NOW()
+        banner_type = $8
       WHERE id = $9
       RETURNING *
     `,
@@ -40,4 +39,4 @@ module.exports = {
       WHERE id = $1
       RETURNING id
     `
-  };
+}

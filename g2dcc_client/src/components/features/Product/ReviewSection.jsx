@@ -26,12 +26,14 @@ import {
   deleteReview,
 } from "@/api/review";
 import { useToast } from "@/context/ToastContext";
+import { useUser } from "@/context/UserContext";
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
 
 const ReviewSection = ({ productId }) => {
   const showToast = useToast();
+  const { user } = useUser();
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -152,121 +154,122 @@ const ReviewSection = ({ productId }) => {
 
   return (
     <div className="review-section" style={{ marginTop: "48px" }}>
-      <Title level={3}>Đánh giá sản phẩm</Title>
+      <Flex justify="space-between" align="flex-start" gap={24}>
+        {/* Review Form */}
+        <div className="review-form" style={{ flex: 1 }}>
+          <Title level={3}>Viết đánh giá của bạn</Title>
+          <Form form={form} onFinish={handleSubmit}>
+            <Form.Item
+              name="rating"
+              rules={[{ required: true, message: "Vui lòng chọn số sao" }]}
+            >
+              <Rate allowHalf />
+            </Form.Item>
 
-      {/* Review Stats */}
-      {stats && (
-        <div className="review-stats" style={{ marginBottom: "24px" }}>
-          <Space size="large">
-            <div className="average-rating">
-              <Title level={2} style={{ marginBottom: 0 }}>
-                {parseFloat(stats.average).toFixed(1) || "0.0"}
-              </Title>
-              <Rate
-                disabled
-                allowHalf
-                value={parseFloat(stats.average)}
-                style={{ color: "#faad14" }}
-              />
-              <Text type="secondary">({stats.total} đánh giá)</Text>
-            </div>
+            <Form.Item name="title">
+              <Input placeholder="Tiêu đề đánh giá" />
+            </Form.Item>
 
-            <div className="rating-distribution">
-              {[5, 4, 3, 2, 1].map((star) => {
-                const starKey = `${
-                  ["five", "four", "three", "two", "one"][5 - star]
-                }_star`;
-                const starCount = parseInt(stats[starKey]) || 0;
-                const totalReviews = parseInt(stats.total) || 1;
-                const percentage = (starCount / totalReviews) * 100;
+            <Form.Item
+              name="comment"
+              rules={[
+                { required: true, message: "Vui lòng nhập nội dung đánh giá" },
+              ]}
+            >
+              <TextArea rows={4} placeholder="Nội dung đánh giá..." />
+            </Form.Item>
 
-                return (
-                  <div
-                    key={star}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    <Rate
-                      disabled
-                      count={1}
-                      value={1}
-                      style={{ color: "#faad14" }}
-                    />
-                    <Text style={{ margin: "0 8px" }}>{star} sao</Text>
-                    <div
-                      style={{
-                        width: "100px",
-                        backgroundColor: "#f0f0f0",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: `${percentage}%`,
-                          height: "8px",
-                          backgroundColor: "#faad14",
-                          borderRadius: "4px",
-                        }}
-                      />
-                    </div>
-                    <Text type="secondary" style={{ marginLeft: "8px" }}>
-                      {starCount}
-                    </Text>
-                  </div>
-                );
-              })}
-            </div>
-          </Space>
-        </div>
-      )}
-
-      <Divider />
-
-      {/* Review Form */}
-      <div className="review-form" style={{ marginBottom: "24px" }}>
-        <Title level={4}>Viết đánh giá của bạn</Title>
-        <Form form={form} onFinish={handleSubmit}>
-          <Form.Item
-            name="rating"
-            rules={[{ required: true, message: "Vui lòng chọn số sao" }]}
-          >
-            <Rate allowHalf />
-          </Form.Item>
-
-          <Form.Item name="title">
-            <Input placeholder="Tiêu đề đánh giá" />
-          </Form.Item>
-
-          <Form.Item
-            name="comment"
-            rules={[
-              { required: true, message: "Vui lòng nhập nội dung đánh giá" },
-            ]}
-          >
-            <TextArea rows={4} placeholder="Nội dung đánh giá..." />
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              {editingReview ? "Cập nhật đánh giá" : "Gửi đánh giá"}
-            </Button>
-            {editingReview && (
-              <Button
-                style={{ marginLeft: "8px" }}
-                onClick={() => {
-                  form.resetFields();
-                  setEditingReview(null);
-                }}
-              >
-                Hủy
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                {editingReview ? "Cập nhật đánh giá" : "Gửi đánh giá"}
               </Button>
-            )}
-          </Form.Item>
-        </Form>
-      </div>
+              {editingReview && (
+                <Button
+                  style={{ marginLeft: "8px" }}
+                  onClick={() => {
+                    form.resetFields();
+                    setEditingReview(null);
+                  }}
+                >
+                  Hủy
+                </Button>
+              )}
+            </Form.Item>
+          </Form>
+        </div>
+
+        {/* Review Stats */}
+        <div className="review-stats" style={{ flex: 1 }}>
+          <Title level={3}>Đánh giá sản phẩm</Title>
+          {stats && (
+            <div style={{ marginBottom: "24px" }}>
+              <Space size="large">
+                <div className="average-rating">
+                  <Title level={2} style={{ marginBottom: 0 }}>
+                    {parseFloat(stats.average).toFixed(1) || "0.0"}
+                  </Title>
+                  <Rate
+                    disabled
+                    allowHalf
+                    value={parseFloat(stats.average)}
+                    style={{ color: "#faad14" }}
+                  />
+                  <Text type="secondary">({stats.total} đánh giá)</Text>
+                </div>
+
+                <div className="rating-distribution">
+                  {[5, 4, 3, 2, 1].map((star) => {
+                    const starKey = `${
+                      ["five", "four", "three", "two", "one"][5 - star]
+                    }_star`;
+                    const starCount = parseInt(stats[starKey]) || 0;
+                    const totalReviews = parseInt(stats.total) || 1;
+                    const percentage = (starCount / totalReviews) * 100;
+
+                    return (
+                      <div
+                        key={star}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        <Rate
+                          disabled
+                          count={1}
+                          value={1}
+                          style={{ color: "#faad14" }}
+                        />
+                        <Text style={{ margin: "0 8px" }}>{star} sao</Text>
+                        <div
+                          style={{
+                            width: "100px",
+                            backgroundColor: "#f0f0f0",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${percentage}%`,
+                              height: "8px",
+                              backgroundColor: "#faad14",
+                              borderRadius: "4px",
+                            }}
+                          />
+                        </div>
+                        <Text type="secondary" style={{ marginLeft: "8px" }}>
+                          {starCount}
+                        </Text>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Space>
+            </div>
+          )}
+        </div>
+      </Flex>
 
       <Divider />
 
@@ -331,23 +334,25 @@ const ReviewSection = ({ productId }) => {
                     </Tag>
                   )}
 
-                  <Space>
-                    <Button
-                      type="text"
-                      size="small"
-                      onClick={() => handleEdit(review)}
-                    >
-                      Chỉnh sửa
-                    </Button>
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
-                      onClick={() => handleDelete(review.id)}
-                    >
-                      Xóa
-                    </Button>
-                  </Space>
+                  {user && user.id === review.user_id && (
+                    <Space>
+                      <Button
+                        type="text"
+                        size="small"
+                        onClick={() => handleEdit(review)}
+                      >
+                        Chỉnh sửa
+                      </Button>
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        onClick={() => handleDelete(review.id)}
+                      >
+                        Xóa
+                      </Button>
+                    </Space>
+                  )}
                 </Flex>
               </Flex>
             </Card>

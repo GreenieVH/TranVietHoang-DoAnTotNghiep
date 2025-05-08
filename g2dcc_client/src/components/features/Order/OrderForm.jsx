@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Select, Button, Card, Table, Space, Typography, message,InputNumber  } from 'antd';
+import { Form, Input, Select, Button, Card, Table, Space, Typography, message, InputNumber, Row, Col } from 'antd';
 import { ShoppingCartOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { createOrder, addOrderItem } from '../../../api/orders';
 import { useToast } from '../../../context/ToastContext';
@@ -97,7 +97,7 @@ const OrderForm = () => {
       key: 'name',
       render: (_, record) => (
         <Space>
-          <img src={record.image} alt={record.name} style={{ width: 50, height: 50, objectFit: 'cover' }} />
+          <img src={record.productImage} alt={record.productName} style={{ width: 50, height: 50, objectFit: 'cover' }} />
           <div>
             <Text strong>{record.name}</Text>
             {record.variantColor && <Text type="secondary">Màu: {record.variantColor}</Text>}
@@ -176,52 +176,66 @@ const OrderForm = () => {
               onFinish={handleSubmit}
               style={{ marginTop: '24px' }}
             >
-              <Form.Item
-                name="shipping_method_id"
-                label="Phương thức vận chuyển"
-                rules={[{ required: true, message: 'Vui lòng chọn phương thức vận chuyển' }]}
-              >
-                <Select>
-                  {shippingMethods.map(method => (
-                    <Select.Option key={method.id} value={method.id}>
-                      {method.name} - {formatCurrency(method.price)}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="shipping_method_id"
+                    label="Phương thức vận chuyển"
+                    rules={[{ required: true, message: 'Vui lòng chọn phương thức vận chuyển' }]}
+                  >
+                    <Select>
+                      {shippingMethods.map(method => (
+                        <Select.Option key={method.id} value={method.id}>
+                          {method.name} - {formatCurrency(method.price)}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="payment_method"
+                    label="Phương thức thanh toán"
+                    rules={[{ required: true, message: 'Vui lòng chọn phương thức thanh toán' }]}
+                  >
+                    <Select>
+                      <Select.Option value="cod">Thanh toán khi nhận hàng</Select.Option>
+                      <Select.Option value="bank">Chuyển khoản ngân hàng</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
 
-              <Form.Item
-                name="payment_method"
-                label="Phương thức thanh toán"
-                rules={[{ required: true, message: 'Vui lòng chọn phương thức thanh toán' }]}
-              >
-                <Select>
-                  <Select.Option value="cod">Thanh toán khi nhận hàng</Select.Option>
-                  <Select.Option value="bank">Chuyển khoản ngân hàng</Select.Option>
-                </Select>
-              </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="shipping_address"
+                    label="Địa chỉ giao hàng"
+                    rules={[{ required: true, message: 'Vui lòng nhập địa chỉ giao hàng' }]}
+                  >
+                    <Input.TextArea rows={3} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="billing_address"
+                    label="Địa chỉ thanh toán"
+                  >
+                    <Input.TextArea rows={3} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-              <Form.Item
-                name="shipping_address"
-                label="Địa chỉ giao hàng"
-                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ giao hàng' }]}
-              >
-                <Input.TextArea rows={4} />
-              </Form.Item>
-
-              <Form.Item
-                name="billing_address"
-                label="Địa chỉ thanh toán"
-              >
-                <Input.TextArea rows={4} />
-              </Form.Item>
-
-              <Form.Item
-                name="note"
-                label="Ghi chú"
-              >
-                <Input.TextArea rows={4} />
-              </Form.Item>
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item
+                    name="note"
+                    label="Ghi chú"
+                  >
+                    <Input.TextArea rows={3} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" size="large" block>

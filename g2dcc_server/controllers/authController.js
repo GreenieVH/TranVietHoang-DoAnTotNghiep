@@ -109,26 +109,72 @@ const refreshToken = async (req, res) => {
   const token = req.cookies.refreshToken;
   if (!token) return res.sendStatus(401);
 
-  const user = await pool.query(
-    "SELECT * FROM users WHERE refresh_token = $1",
-    [token]
-  );
-  if (user.rows.length === 0) return res.sendStatus(403);
+  try {
+    // Verify refresh token
+    const decoded = jwt.verify(token, REFRESH_KEY);
+    
+    // Kiểm tra token trong database
+    const user = await pool.query(
+      "SELECT * FROM users WHERE id = $1 AND refresh_token = $2",
+      [decoded.id, token]
+    );
 
-  jwt.verify(token, REFRESH_KEY, async (err, decoded) => {
-    if (err) return res.sendStatus(403);
-    // Lấy user từ database dựa vào decoded.id
-    const foundUser = await pool.query("SELECT * FROM users WHERE id = $1", [
-      decoded.id,
-    ]);
-    if (foundUser.rows.length === 0) return res.sendStatus(403);
+    if (user.rows.length === 0) {
+      // Token không tồn tại trong database => có thể đã bị đánh cắp
+      await pool.query(
+        "UPDATE users SET refresh_token = NULL WHERE id = $1",
+        [decoded.id]
+      );
+      return res.sendStatus(403);
+    }
 
+    // Tạo access token mới
     const accessToken = generateAccessToken({
-      id: foundUser.rows[0].id,
-      username: foundUser.rows[0].username,
+      id: user.rows[0].id,
+      username: user.rows[0].username,
+      role: user.rows[0].role_name
     });
+
+    // Tạo refresh token mới
+    const newRefreshToken = jwt.sign(
+      { 
+        id: user.rows[0].id, 
+        username: user.rows[0].username,
+        role: user.rows[0].role_name
+      },
+      REFRESH_KEY,
+      { expiresIn: "15d" }
+    );
+
+    // Cập nhật refresh token mới vào database
+    await pool.query(
+      "UPDATE users SET refresh_token = $1 WHERE id = $2",
+      [newRefreshToken, user.rows[0].id]
+    );
+
+    // Set cookie mới
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 15 * 24 * 60 * 60 * 1000,
+    });
+
     res.json({ accessToken });
-  });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      // Token đã hết hạn => xóa refresh token
+      const decoded = jwt.decode(token);
+      if (decoded?.id) {
+        await pool.query(
+          "UPDATE users SET refresh_token = NULL WHERE id = $1",
+          [decoded.id]
+        );
+      }
+      return res.sendStatus(401);
+    }
+    return res.sendStatus(403);
+  }
 };
 
 // Đăng xuất
