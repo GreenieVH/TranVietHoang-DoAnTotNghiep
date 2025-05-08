@@ -355,9 +355,15 @@ const UserHeader = () => {
                 </button>
                 <button
                   className="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
-                  onClick={() => navigate("/orders")}
+                  onClick={() => navigate("/profile/orders")}
                 >
                   Đơn hàng
+                </button>
+                <button
+                  className="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+                  onClick={() => navigate("/profile/order-history")}
+                >
+                  Lịch sử mua hàng
                 </button>
                 <button
                   className="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"

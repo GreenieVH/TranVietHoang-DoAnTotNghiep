@@ -26,7 +26,6 @@ export const getUserOrders = async (page = 1, limit = 10) => {
     const response = await APIAUTH.get('/orders/user', {
       params: { page, limit }
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching user orders:', error);
@@ -74,4 +73,14 @@ export const getOrders = async (page = 1, limit = 10, filters = {}) => {
     console.error('Error fetching orders:', error);
     throw error;
   }
-}; 
+};
+
+export const confirmOrderDelivery = async (orderId, status) => {
+  try {
+    const response = await APIAUTH.post(`/orders/${orderId}/confirm-delivery`, { status });
+    return response.data;
+  } catch (error) {
+    console.error('Error confirming order delivery:', error);
+    throw error;
+  }
+};

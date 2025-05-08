@@ -31,13 +31,13 @@ module.exports = {
   createPromotion: async (req, res) => {
     try {
       const {
-        code, name, description, discountType, discountValue,
-        maxDiscountAmount, minOrderAmount, startDate, endDate,
-        isActive, usageLimit
+        code, name, description, discount_type, discount_value,
+        max_discount_amount, min_order_amount, start_date, end_date,
+        is_active, usage_limit
       } = req.body;
 
       // Validate dates
-      if (new Date(startDate) >= new Date(endDate)) {
+      if (new Date(start_date) >= new Date(end_date)) {
         return res.status(400).json({ 
           success: false, 
           message: 'End date must be after start date' 
@@ -45,9 +45,9 @@ module.exports = {
       }
 
       const result = await db.query(promotionQueries.createPromotion, [
-        code, name, description, discountType, discountValue,
-        maxDiscountAmount || null, minOrderAmount || 0, 
-        startDate, endDate, isActive !== false, usageLimit || null
+        code, name, description, discount_type, discount_value,
+        max_discount_amount || null, min_order_amount || 0, 
+        start_date, end_date, is_active !== false, usage_limit || null
       ]);
 
       res.status(201).json({ success: true, data: result.rows[0] });
@@ -67,13 +67,13 @@ module.exports = {
     try {
       const { id } = req.params;
       const {
-        code, name, description, discountType, discountValue,
-        maxDiscountAmount, minOrderAmount, startDate, endDate,
-        isActive, usageLimit
+        code, name, description, discount_type, discount_value,
+        max_discount_amount, min_order_amount, start_date, end_date,
+        is_active, usage_limit
       } = req.body;
 
       // Validate dates
-      if (new Date(startDate) >= new Date(endDate)) {
+      if (new Date(start_date) >= new Date(end_date)) {
         return res.status(400).json({ 
           success: false, 
           message: 'End date must be after start date' 
@@ -81,9 +81,9 @@ module.exports = {
       }
 
       const result = await db.query(promotionQueries.updatePromotion, [
-        code, name, description, discountType, discountValue,
-        maxDiscountAmount || null, minOrderAmount || 0, 
-        startDate, endDate, isActive !== false, usageLimit || null,
+        code, name, description, discount_type, discount_value,
+        max_discount_amount || null, min_order_amount || 0, 
+        start_date, end_date, is_active !== false, usage_limit || null,
         id
       ]);
 

@@ -29,6 +29,9 @@ import OrderForm from "./components/features/Order/OrderForm";
 import AdminOrderList from "./components/features/Admin/orders/AdminOrderList";
 import AdminOrderShipment from "./components/features/Admin/orders/AdminOrderShipment";
 import AdminBannerList from "./pages/Admin/AdminBannerList";
+import OrderHistory from "./components/features/Order/OrderHistory";
+import AdminPromotionList from "./pages/Admin/AdminPromotionList";
+import Promotions from "./pages/Promotions";
 
 function App() {
   return (
@@ -45,17 +48,19 @@ function App() {
               <Route index element={<Home />} />
               <Route path="/profile" element={<Profile />}>
                 <Route index element={<ProfileInfo />} />
+                <Route path="order-history" element={<OrderHistory />} />
+                <Route path="wishlist" element={<WishlistPage />} />
+                <Route path="orders" element={<OrderList />} />
               </Route>
               <Route path="/forum" element={<Forum />}>
                 <Route index element={<ThreadList />} />
                 <Route path="thread/:id" element={<ThreadDetail />} />
               </Route>
+              <Route path="/promotions" element={<Promotions />} />
               <Route path="/products" element={<Product />} />
               <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/cart" element={<CartPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
               {/* Order Routes */}
-              <Route path="/orders" element={<OrderList />} />
               <Route path="/orders/new" element={<OrderForm />} />
               <Route path="/orders/:id" element={<OrderDetail />} />
             </Route>
@@ -76,6 +81,7 @@ function App() {
                 <Route path="product-lists" element={<AdminProductList />} />
                 <Route path="brand-lists" element={<AdminBrandList />} />
                 <Route path="banner-lists" element={<AdminBannerList />} />
+                <Route path="promotion-lists" element={<AdminPromotionList />} />
                 {/* Admin Order Routes */}
                 <Route path="orders" element={<AdminOrderList />} />
                 <Route path="orders/:id" element={<OrderDetail />} />

@@ -105,6 +105,10 @@ const AdminProductList = () => {
       dataIndex: "rating",
       key: "rating",
       sorter: (a, b) => a.rating - b.rating,
+      render: (value) => {
+        const num = parseFloat(value);
+        return isNaN(num) ? 'N/A' : num.toFixed(1);
+      }
     },
     {
       title: "Thao tác",

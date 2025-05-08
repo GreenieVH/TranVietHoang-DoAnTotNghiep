@@ -1,7 +1,7 @@
 module.exports = {
     getAllPromotions: `
       SELECT * FROM promotions
-      WHERE is_active = true AND start_date <= NOW() AND end_date >= NOW()
+      WHERE is_active = true AND start_date <= NOW()
       ORDER BY created_at DESC
     `,
   
@@ -33,8 +33,7 @@ module.exports = {
         start_date = $8,
         end_date = $9,
         is_active = $10,
-        usage_limit = $11,
-        updated_at = NOW()
+        usage_limit = $11
       WHERE id = $12
       RETURNING *
     `,

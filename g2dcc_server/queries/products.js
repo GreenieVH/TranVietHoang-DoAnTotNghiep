@@ -11,6 +11,7 @@ module.exports = {
       sort = "newest",
       search,
       inStock,
+      is_featured,
     } = filters;
 
     const offset = (page - 1) * limit;
@@ -20,6 +21,7 @@ module.exports = {
         p.id, p.name, p.slug, p.brand_id, p.base_price as "basePrice",
         p.description, p.stock, p.created_at as "createdAt",
         p.updated_at as "updatedAt", p.is_active as "isActive",
+        p.is_featured as "isFeatured",
         c.id as "categoryId", c.name as "categoryName",
         b.name as "brandName", b.logo_url as "brandLogo",
         (
@@ -98,6 +100,10 @@ module.exports = {
         SELECT 1 FROM product_variants pv 
         WHERE pv.product_id = p.id AND pv.stock > 0
       ))`;
+    }
+
+    if (is_featured === "true") {
+      query += ` AND p.is_featured = true`;
     }
 
     // Thêm sắp xếp

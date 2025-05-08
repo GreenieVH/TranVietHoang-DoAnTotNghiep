@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useToast } from '../../../context/ToastContext';
 import { useUser } from '../../../context/UserContext';
+import OrderDeliveryConfirmation from './OrderDeliveryConfirmation';
 import { 
   Card, 
   Table, 
@@ -51,6 +52,10 @@ const OrderDetail = () => {
   useEffect(() => {
     fetchOrder();
   }, [id]);
+
+  const handleDeliverySuccess = () => {
+    fetchOrder(); // Refresh order data after successful delivery confirmation
+  };
 
   const handleUpdateStatus = async (values) => {
     try {
@@ -138,7 +143,7 @@ const OrderDetail = () => {
       <Card 
         title={`Chi tiết đơn hàng #${order.order_number}`}
         extra={
-          user?.role === 'admin' && (
+          user?.role === 'admin' || user?.role === 'staff' ? (
             <Space>
               <Button 
                 type="primary" 
@@ -153,8 +158,14 @@ const OrderDetail = () => {
               >
                 Quản lý vận chuyển
               </Button>
+              {order.status !== 'delivered' && (
+                <OrderDeliveryConfirmation 
+                  order={order} 
+                  onSuccess={handleDeliverySuccess}
+                />
+              )}
             </Space>
-          )
+          ) : null
         }
       >
         <Descriptions bordered>

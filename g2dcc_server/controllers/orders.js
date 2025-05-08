@@ -305,4 +305,80 @@ module.exports = {
       });
     }
   },
+
+  confirmDelivery: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      // Check if order exists
+      const orderResult = await db.query(orderQueries.getOrderById, [id]);
+
+      if (orderResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy đơn hàng",
+        });
+      }
+
+      // Check if user is authorized to update this order
+      if (orderResult.rows[0].user_id !== req.user.id && req.user.role !== "admin") {
+        return res.status(403).json({
+          success: false,
+          message: "Bạn không có quyền cập nhật đơn hàng này",
+        });
+      }
+
+      // Start transaction
+      await db.query('BEGIN');
+
+      try {
+        // Update order status
+        const result = await db.query(orderQueries.updateOrderStatus, [status, id]);
+
+        // If order is delivered, update product stock
+        if (status === 'delivered') {
+          // Get all items in the order
+          const orderItems = await db.query(
+            'SELECT product_id, variant_id, quantity FROM order_items WHERE order_id = $1',
+            [id]
+          );
+
+          // Update stock for each item
+          for (const item of orderItems.rows) {
+            if (item.variant_id) {
+              // Update variant stock
+              await db.query(
+                'UPDATE product_variants SET stock = stock - $1 WHERE id = $2',
+                [item.quantity, item.variant_id]
+              );
+            } else {
+              // Update product stock
+              await db.query(
+                'UPDATE products SET stock = stock - $1 WHERE id = $2',
+                [item.quantity, item.product_id]
+              );
+            }
+          }
+        }
+
+        await db.query('COMMIT');
+
+        res.json({
+          success: true,
+          message: "Xác nhận giao hàng thành công",
+          data: result.rows[0],
+        });
+      } catch (error) {
+        await db.query('ROLLBACK');
+        throw error;
+      }
+    } catch (error) {
+      console.error("Error confirming delivery:", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống",
+      });
+    }
+  },
 };

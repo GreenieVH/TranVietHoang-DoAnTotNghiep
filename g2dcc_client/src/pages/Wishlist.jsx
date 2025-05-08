@@ -54,85 +54,81 @@ const WishlistPage = () => {
   };
 
   return (
-    <div className="wishlist-page min-h-screen" style={{ padding: "24px" }}>
-      <Title level={2}>Danh sách yêu thích</Title>
+    <Card loading={loading} title="Danh sách yêu thích">
+      {wishlist.items?.length > 0 ? (
+        <>
+          <List
+            itemLayout="vertical"
+            dataSource={wishlist.items}
+            renderItem={(item) => (
+              <List.Item
+                actions={[
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleRemove(item.productId)}
+                  >
+                    Xóa
+                  </Button>,
+                  <Button type="primary">
+                    <Link to={`/products/${item.productId}`}>
+                      Xem chi tiết
+                    </Link>
+                  </Button>,
+                ]}
+              >
+                <List.Item.Meta
+                  avatar={
+                    <Image
+                      width={120}
+                      src={item.imageUrl || "/placeholder-product.jpg"}
+                      alt={item.name}
+                    />
+                  }
+                  title={
+                    <Link to={`/products/${item.productId}`}>
+                      {item.name}
+                    </Link>
+                  }
+                  description={
+                    <Space direction="vertical">
+                      <Text>{item.description}</Text>
+                      <Text strong>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.basePrice)}
+                      </Text>
+                    </Space>
+                  }
+                />
+              </List.Item>
+            )}
+          />
 
-      <Card loading={loading}>
-        {wishlist.items?.length > 0 ? (
-          <>
-            <List
-              itemLayout="vertical"
-              dataSource={wishlist.items}
-              renderItem={(item) => (
-                <List.Item
-                  actions={[
-                    <Button
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleRemove(item.productId)}
-                    >
-                      Xóa
-                    </Button>,
-                    <Button type="primary">
-                      <Link to={`/products/${item.productId}`}>
-                        Xem chi tiết
-                      </Link>
-                    </Button>,
-                  ]}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Image
-                        width={120}
-                        src={item.imageUrl || "/placeholder-product.jpg"}
-                        alt={item.name}
-                      />
-                    }
-                    title={
-                      <Link to={`/products/${item.productId}`}>
-                        {item.name}
-                      </Link>
-                    }
-                    description={
-                      <Space direction="vertical">
-                        <Text>{item.description}</Text>
-                        <Text strong>
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(item.basePrice)}
-                        </Text>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
+          <div style={{ textAlign: "center", marginTop: "16px" }}>
+            <Pagination
+              current={currentPage}
+              total={wishlist.pagination?.total || 0}
+              pageSize={wishlist.pagination?.limit || 10}
+              onChange={handlePageChange}
+              showSizeChanger={false}
             />
-
-            <div style={{ textAlign: "center", marginTop: "16px" }}>
-              <Pagination
-                current={currentPage}
-                total={wishlist.pagination?.total || 0}
-                pageSize={wishlist.pagination?.limit || 10}
-                onChange={handlePageChange}
-                showSizeChanger={false}
-              />
-            </div>
-          </>
-        ) : (
-          <Empty
-            image={
-              <HeartOutlined style={{ fontSize: "48px", color: "#ff4d4f" }} />
-            }
-            description="Danh sách yêu thích của bạn đang trống"
-          >
-            <Button type="primary">
-              <Link to="/products">Thêm ngay</Link>
-            </Button>
-          </Empty>
-        )}
-      </Card>
-    </div>
+          </div>
+        </>
+      ) : (
+        <Empty
+          image={
+            <HeartOutlined style={{ fontSize: "48px", color: "#ff4d4f" }} />
+          }
+          description="Danh sách yêu thích của bạn đang trống"
+        >
+          <Button type="primary">
+            <Link to="/products">Thêm ngay</Link>
+          </Button>
+        </Empty>
+      )}
+    </Card>
   );
 };
 

@@ -95,6 +95,11 @@ function AdminNavbar() {
           label: "banners",
           onClick: () => navigate("/admin/banner-lists"),
         },
+        {
+          key: "Promotion",
+          label: "Promotion",
+          onClick: () => navigate("/admin/promotion-lists"),
+        },
       ],
     },
   ];

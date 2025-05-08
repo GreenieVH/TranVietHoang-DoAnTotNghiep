@@ -126,24 +126,6 @@ module.exports = {
         });
       }
 
-      // Xử lý upload ảnh nếu có
-      if (req.file) {
-        const imgUrl = await uploadToCloudinary(
-          req.file.buffer,
-          "product_images"
-        );
-
-        // Lưu vào bảng product_images
-        await db.query(productQueries.addProductImage, [
-          result.rows[0].id, // product_id
-          null, // variant_id (null nếu là ảnh chính của sản phẩm)
-          imgUrl,
-          true, // is_primary
-          `Ảnh chính của ${name}`,
-          1, // display_order
-        ]);
-      }
-
       // Tạo slug và kiểm tra trùng
       let slug = name
         .toLowerCase()
@@ -176,6 +158,23 @@ module.exports = {
         true,
         isFeatured || false,
       ]);
+
+      // Xử lý upload ảnh sau khi tạo sản phẩm thành công
+      if (req.file) {
+        const imgUrl = await uploadToCloudinary(
+          req.file.buffer,
+          "product_images"
+        );
+
+        await db.query(productQueries.addProductImage, [
+          result.rows[0].id, // product_id
+          null, // variant_id (null nếu là ảnh chính của sản phẩm)
+          imgUrl,
+          true, // is_primary
+          `Ảnh chính của ${name}`,
+          1, // display_order
+        ]);
+      }
 
       res.status(201).json({ success: true, data: result.rows[0] });
     } catch (err) {

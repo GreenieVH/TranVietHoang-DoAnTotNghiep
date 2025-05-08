@@ -19,7 +19,7 @@ export default function ProfileSidebar() {
     const path = location.pathname;
     if (path.includes("wishlist")) return "wishlist";
     if (path.includes("orders")) return "orders";
-    if (path.includes("saved")) return "saved";
+    if (path.includes("order-history")) return "order-history";
     if (path.includes("security")) return "security";
     return "profile";
   };
@@ -28,7 +28,7 @@ export default function ProfileSidebar() {
     <Sider
       width={250}
       theme="light"
-      className="rounded-l-lg border-r h-screen sticky top-0 overflow-y-auto"
+      className="rounded-l-lg border-r min-h-screen sticky top-0 overflow-y-auto"
       breakpoint="lg"
       collapsedWidth="0"
     >
@@ -60,8 +60,8 @@ export default function ProfileSidebar() {
         <Menu.Item key="orders" icon={<ShoppingCartOutlined />}>
           <Link to="/profile/orders">Đơn hàng của tôi</Link>
         </Menu.Item>
-        <Menu.Item key="saved" icon={<ClockCircleOutlined />}>
-          <Link to="/profile/saved">Danh sách xem sau</Link>
+        <Menu.Item key="order-history" icon={<ClockCircleOutlined />}>
+          <Link to="/profile/order-history">Lịch sử mua hàng</Link>
         </Menu.Item>
         <Menu.Item key="security" icon={<LockOutlined />}>
           <Link to="/profile/security">Bảo mật</Link>

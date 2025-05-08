@@ -16,5 +16,6 @@ router.patch("/:id/status", authMiddleware, orderController.updateOrderStatus);
 router.patch("/:id/shipment", authMiddleware, orderController.updateShipment);
 router.put("/:id/status", authMiddleware, adminMiddleware, orderController.updateOrderStatus);
 router.put("/:id/shipment", authMiddleware, adminMiddleware, orderController.updateShipment);
+router.post("/:id/confirm-delivery", authMiddleware, orderController.confirmDelivery);
 
 module.exports = router;

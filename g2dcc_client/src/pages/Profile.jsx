@@ -7,7 +7,7 @@ const { Content } = Layout;
 export default function ProfilePage() {
   return (
     <div className="bg-gbg min-h-screen">
-      <Layout className="bg-white rounded-lg shadow h-screen overflow-hidden">
+      <Layout className="bg-white rounded-lg h-content shadow overflow-hidden">
         <ProfileSidebar />
         <Content className="p-6">
           <Outlet />
