@@ -4,7 +4,7 @@ const addressQueries = require('../queries/addresses');
 module.exports = {
   getUserAddresses: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const result = await db.query(addressQueries.getUserAddresses, [userId]);
 
       res.json({ success: true, data: result.rows });
@@ -16,7 +16,7 @@ module.exports = {
 
   getAddressById: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { id } = req.params;
 
       const result = await db.query(addressQueries.getAddressById, [id, userId]);
@@ -34,21 +34,21 @@ module.exports = {
 
   createAddress: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const {
-        recipientName, phoneNumber, addressLine1,
-        addressLine2, city, state, postalCode, country, isDefault
+        recipient_name, phone_number, address_line1,
+        address_line2, city, state, postal_code, country, is_default
       } = req.body;
 
       // Clear existing default addresses if setting new default
-      if (isDefault) {
+      if (is_default) {
         await db.query(addressQueries.clearDefaultAddresses, [userId]);
       }
 
       const result = await db.query(addressQueries.createAddress, [
-        userId, recipientName, phoneNumber, addressLine1,
-        addressLine2 || null, city, state, postalCode, country || 'Vietnam',
-        isDefault || false
+        userId, recipient_name, phone_number, address_line1,
+        address_line2 || null, city, state, postal_code, country || 'Vietnam',
+        is_default || false
       ]);
 
       res.status(201).json({ success: true, data: result.rows[0] });
@@ -60,22 +60,22 @@ module.exports = {
 
   updateAddress: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { id } = req.params;
       const {
-        recipientName, phoneNumber, addressLine1,
-        addressLine2, city, state, postalCode, country, isDefault
+        recipient_name, phone_number, address_line1,
+        address_line2, city, state, postal_code, country, is_default
       } = req.body;
 
       // Clear existing default addresses if setting new default
-      if (isDefault) {
+      if (is_default) {
         await db.query(addressQueries.clearDefaultAddresses, [userId]);
       }
 
       const result = await db.query(addressQueries.updateAddress, [
-        recipientName, phoneNumber, addressLine1,
-        addressLine2 || null, city, state, postalCode, country || 'Vietnam',
-        isDefault || false, id, userId
+        recipient_name, phone_number, address_line1,
+        address_line2 || null, city, state, postal_code, country || 'Vietnam',
+        is_default || false, id, userId
       ]);
 
       if (result.rows.length === 0) {
@@ -91,7 +91,7 @@ module.exports = {
 
   deleteAddress: async (req, res) => {
     try {
-      const { userId } = req;
+      const userId = req.user?.id;
       const { id } = req.params;
 
       const result = await db.query(addressQueries.deleteAddress, [id, userId]);

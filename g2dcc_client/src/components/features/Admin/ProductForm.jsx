@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Form,
@@ -24,6 +24,29 @@ import {
   deleteVariant,
 } from "../../../api/product";
 
+const buildCategoryTree = (categories) => {
+  const categoryMap = {};
+  const tree = [];
+
+  // Tạo bản đồ id -> category
+  categories.forEach(cat => {
+    categoryMap[cat.id] = { ...cat, children: [] };
+  });
+
+  // Gắn children vào parent
+  categories.forEach(cat => {
+    if (cat.parent_id) {
+      if (categoryMap[cat.parent_id]) {
+        categoryMap[cat.parent_id].children.push(categoryMap[cat.id]);
+      }
+    } else {
+      tree.push(categoryMap[cat.id]);
+    }
+  });
+
+  return tree;
+};
+
 const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
   const [form] = Form.useForm();
   const { brands, loading: brandsLoading } = useBrands();
@@ -39,6 +62,25 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
     category: null,
     general: null,
   });
+
+  const categoryTree = buildCategoryTree(categories || []);
+
+  const renderCategoryOptions = (items) => {
+    return items.map(item => {
+      if (item.children && item.children.length > 0) {
+        return (
+          <Select.OptGroup key={item.id} label={item.name}>
+            {renderCategoryOptions(item.children)}
+          </Select.OptGroup>
+        );
+      }
+      return (
+        <Select.Option key={item.id} value={item.id}>
+          {item.name}
+        </Select.Option>
+      );
+    });
+  };
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -88,7 +130,6 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
         setFileList([]);
       }
     };
-    // Chỉ fetch khi brands và categories đã sẵn sàng
     if ((brands?.length > 0 && categories?.length > 0) || !productId) {
       fetchProductData();
     }
@@ -163,10 +204,18 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
         category: null,
         general: null,
       });
+
+      // Tìm category cha nếu có
+      const selectedCategory = categories.find(cat => cat.id === values.categoryId);
+      const parentCategoryId = selectedCategory?.parent_id;
+
       // Tạo FormData để gửi cả file ảnh
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("categoryId", values.categoryId);
+      if (parentCategoryId) {
+        formData.append("parentCategoryId", parentCategoryId);
+      }
       formData.append("brandId", values.brandId);
       formData.append("description", values.description);
       formData.append("basePrice", values.basePrice);
@@ -183,14 +232,6 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
       } else {
         product = await createProduct(formData);
         showToast("Thêm sản phẩm thành công!", "success");
-      }
-      // Log FormData (cần hàm helper để xem)
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(key, `[File] ${value.name} (${value.size} bytes)`);
-        } else {
-          console.log(key, value);
-        }
       }
 
       // Handle variants
@@ -288,11 +329,7 @@ const ProductForm = ({ visible, onCancel, productId, onSuccess }) => {
               rules={[{ required: true, message: "Vui lòng chọn danh mục" }]}
             >
               <Select loading={categoriesLoading}>
-                {categories.map((category) => (
-                  <Select.Option key={category.id} value={category.id}>
-                    {category.name}
-                  </Select.Option>
-                ))}
+                {renderCategoryOptions(categoryTree)}
               </Select>
             </Form.Item>
           </Col>

@@ -134,7 +134,7 @@ const OrderDetail = () => {
     <div className="container mx-auto px-4 py-8 min-h-screen">
       <Button 
         icon={<ArrowLeftOutlined />} 
-        onClick={() => navigate(user?.role === 'admin' || user?.role === 'staff' ? '/admin/orders' : '/orders')}
+        onClick={() => navigate(user?.role === 'admin' || user?.role === 'staff' ? '/admin/orders' : '/profile/orders')}
         className="mb-4"
       >
         Quay lại

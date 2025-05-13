@@ -18,8 +18,10 @@ import {
 
 import { ShoppingCartOutlined, HeartOutlined } from "@ant-design/icons";
 import { getProductById } from "../api/product";
+import { getCategories } from "../api/category";
 import ReviewSection from "../components/features/Product/ReviewSection";
 import AddToCartButton from "../components/common/AddToCartButton";
+import ProductBreadcrumb from "../components/common/ProductBreadcrumb";
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -30,18 +32,23 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getProductById(id);
-        setProduct(data);
-        if (data.variants?.length > 0) {
-          setSelectedVariant(data.variants[0]);
+        const [productData, categoriesData] = await Promise.all([
+          getProductById(id),
+          getCategories()
+        ]);
+        setProduct(productData);
+        setCategories(categoriesData);
+        if (productData.variants?.length > 0) {
+          setSelectedVariant(productData.variants[0]);
         }
       } catch (err) {
-        console.error("Error fetching product:", err);
+        console.error("Error fetching data:", err);
         setError(err.message);
         message.error("Failed to load product details");
       } finally {
@@ -49,7 +56,7 @@ const ProductDetailPage = () => {
       }
     };
 
-    fetchProduct();
+    fetchData();
   }, [id]);
 
   const handleAddToCart = () => {
@@ -97,6 +104,11 @@ const ProductDetailPage = () => {
       className="product-detail-page mx-auto"
       style={{ padding: "16px 32px" }}
     >
+      <ProductBreadcrumb 
+        categories={categories}
+        currentCategoryId={product?.category_id}
+        productName={product?.name}
+      />
       <Row gutter={[24, 24]}>
         {/* Product Images */}
         <Col xs={24} md={12} lg={10}>
@@ -106,7 +118,7 @@ const ProductDetailPage = () => {
                 <Image
                   src={product.images[0]?.url || "/placeholder-product.jpg"}
                   alt={product.name}
-                  style={{ width: "100%", borderRadius: "8px" }}
+                  style={{ width: "100%", borderRadius: "8px"}}
                 />
                 <div style={{ marginTop: "16px" }}>
                   <Row gutter={[8, 8]}>

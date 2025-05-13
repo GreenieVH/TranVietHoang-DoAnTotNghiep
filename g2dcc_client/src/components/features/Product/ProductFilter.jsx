@@ -4,6 +4,29 @@ import { FilterOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
+const buildCategoryTree = (categories) => {
+  const categoryMap = {};
+  const tree = [];
+
+  // Tạo bản đồ id -> category
+  categories.forEach(cat => {
+    categoryMap[cat.id] = { ...cat, children: [] };
+  });
+
+  // Gắn children vào parent
+  categories.forEach(cat => {
+    if (cat.parent_id) {
+      if (categoryMap[cat.parent_id]) {
+        categoryMap[cat.parent_id].children.push(categoryMap[cat.id]);
+      }
+    } else {
+      tree.push(categoryMap[cat.id]);
+    }
+  });
+
+  return tree;
+};
+
 const ProductFilter = ({ 
   categories, 
   brands, 
@@ -11,10 +34,37 @@ const ProductFilter = ({
   initialValues 
 }) => {
   const [form] = Form.useForm();
+  const categoryTree = buildCategoryTree(categories || []);
+
+  React.useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue({
+        ...initialValues,
+        category: initialValues.category_id || initialValues.category
+      });
+    }
+  }, [initialValues]);
 
   const handleReset = () => {
     form.resetFields();
     onFilter({});
+  };
+
+  const renderCategoryOptions = (items) => {
+    return items.map(item => {
+      if (item.children && item.children.length > 0) {
+        return (
+          <Select.OptGroup key={item.id} label={item.name}>
+            {renderCategoryOptions(item.children)}
+          </Select.OptGroup>
+        );
+      }
+      return (
+        <Option key={item.id} value={item.id}>
+          {item.name}
+        </Option>
+      );
+    });
   };
 
   return (
@@ -39,11 +89,7 @@ const ProductFilter = ({
         <Col span={24}>
           <Form.Item name="category" label="Danh mục">
             <Select placeholder="Chọn danh mục">
-              {categories?.map(category => (
-                <Option key={category.id} value={category.id}>
-                  {category.name}
-                </Option>
-              ))}
+              {renderCategoryOptions(categoryTree)}
             </Select>
           </Form.Item>
         </Col>

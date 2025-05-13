@@ -281,6 +281,7 @@ const ReviewSection = ({ productId }) => {
           itemLayout="vertical"
           loading={loading}
           dataSource={reviews}
+          locale={{ emptyText: "Chưa có đánh giá nào" }}
           pagination={{
             current: pagination.page,
             pageSize: pagination.limit,

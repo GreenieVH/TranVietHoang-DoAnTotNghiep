@@ -1,104 +1,116 @@
-// import React from "react";
-// import { IoHomeOutline } from "react-icons/io5";
-// import { HiOutlineUserGroup } from "react-icons/hi2";
-// import { useNavigate } from "react-router-dom";
-
-// function AdminNavbar() {
-//   const navigate = useNavigate()
-//   return (
-//     <div className="bg-white text-black w-1/5 max-w-[250px] min-h-screen shadow-md shadow-gray-600">
-//       <div className="mb-2">
-//         <p className="p-4 py-4 font-bold text-base">Navigation</p>
-//         <div className="hover:border-l-2 hover:bg-[#EFEFEF] cursor-pointer border-yellow-400 text-gray-500 " onClick={() =>navigate("/admin")}>
-//           <div className="p-6 py-2 flex items-center gap-4">
-//             <IoHomeOutline className="w-5 h-5"/>
-//             <p className="font-bold text-base">Home</p>
-//           </div>
-//         </div>
-//       </div>
-//       <div className="border-t-1 border-gray-400 mb-2">
-//         <p className="p-4 py-4 font-bold text-base">Table</p>
-//         <div className="hover:border-l-2 hover:bg-[#EFEFEF] cursor-pointer border-yellow-400 text-gray-500 " onClick={() =>navigate("/admin/user-lists")}>
-//           <div className="p-6 py-2 flex items-center gap-4">
-//             <HiOutlineUserGroup className="w-5 h-5"/>
-//             <p className="font-bold text-base">Users</p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default AdminNavbar;
-
 import React from "react";
 import { Menu } from "antd";
-import { IoHomeOutline } from "react-icons/io5";
-import { HiOutlineUserGroup } from "react-icons/hi";
+import {
+  HomeOutlined,
+  TeamOutlined,
+  AppstoreOutlined,
+  ShoppingCartOutlined,
+  TagsOutlined,
+  GiftOutlined,
+  BarcodeOutlined,
+  PictureOutlined,
+  FireOutlined,
+  SettingOutlined
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../../../context/UserContext";
 
 function AdminNavbar() {
   const navigate = useNavigate();
   const [openKeys, setOpenKeys] = React.useState([]);
+  const { user } = useUser();
+
+
+  const isAdmin = user?.role === 'admin';
 
   const items = [
     {
       key: "home",
-      label: "Home",
-      icon: <IoHomeOutline className="w-5 h-5" />,
+      label: "Tổng quan",
+      icon: <HomeOutlined />,
       onClick: () => navigate("/admin"),
     },
-    {
-      key: "users",
-      label: "Users",
-      icon: <HiOutlineUserGroup className="w-5 h-5" />,
+    ...(isAdmin ? [{
+      key: "user-management",
+      label: "Quản lý người dùng",
+      icon: <TeamOutlined />,
       children: [
         {
           key: "user-list",
-          label: "User List",
+          label: "Danh sách người dùng",
           onClick: () => navigate("/admin/user-lists"),
         },
         {
-          key: "roles",
-          label: "Roles",
-          onClick: () => navigate("/admin/roles"),
+          key: "staff-list",
+          label: "Danh sách nhân viên",
+          onClick: () => navigate("/admin/staff-lists"),
         },
       ],
-    },
-    ,
+    }] : []),
     {
-      key: "products",
-      label: "Products",
-      icon: <HiOutlineUserGroup className="w-5 h-5" />,
+      key: "catalog",
+      label: "Quản lý sản phẩm",
+      icon: <AppstoreOutlined />,
       children: [
         {
           key: "category",
-          label: "Category",
+          label: "Danh mục",
+          icon: <TagsOutlined />,
           onClick: () => navigate("/admin/category-lists"),
         },
         {
-          key: "Product",
-          label: "Products",
+          key: "product",
+          label: "Sản phẩm",
+          icon: <BarcodeOutlined />,
           onClick: () => navigate("/admin/product-lists"),
         },
         {
-          key: "Brand",
-          label: "brand",
+          key: "brand",
+          label: "Thương hiệu",
+          icon: <GiftOutlined />,
           onClick: () => navigate("/admin/brand-lists"),
-        }, {
-          key: "Orders",
-          label: "orders",
+        },
+      ],
+    },
+    {
+      key: "sales",
+      label: "Quản lý bán hàng",
+      icon: <ShoppingCartOutlined />,
+      children: [
+        {
+          key: "orders",
+          label: "Đơn hàng",
           onClick: () => navigate("/admin/orders"),
         },
         {
-          key: "Banner",
-          label: "banners",
+          key: "promotion",
+          label: "Khuyến mãi",
+          icon: <FireOutlined />,
+          onClick: () => navigate("/admin/promotion-lists"),
+        },
+      ],
+    },
+    {
+      key: "marketing",
+      label: "Marketing",
+      icon: <PictureOutlined />,
+      children: [
+        {
+          key: "banner",
+          label: "Quản lý banner",
           onClick: () => navigate("/admin/banner-lists"),
         },
+      ],
+    },
+    {
+      key: "settings",
+      label: "Cài đặt",
+      icon: <SettingOutlined />,
+      children: [
         {
-          key: "Promotion",
-          label: "Promotion",
-          onClick: () => navigate("/admin/promotion-lists"),
+          key: "general",
+          label: "Cài đặt chung",
+          onClick: () => navigate("/admin/settings"),
         },
       ],
     },

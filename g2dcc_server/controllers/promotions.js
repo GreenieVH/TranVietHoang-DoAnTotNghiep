@@ -8,7 +8,7 @@ module.exports = {
       res.json({ success: true, data: result.rows });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ success: false, message: 'Server error' });
+      res.status(500).json({ success: false, message: 'Lỗi máy chủ' });
     }
   },
 
@@ -18,13 +18,13 @@ module.exports = {
       const result = await db.query(promotionQueries.getPromotionById, [id]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, message: 'Promotion not found' });
+        return res.status(404).json({ success: false, message: 'Không tìm thấy mã giảm giá' });
       }
 
       res.json({ success: true, data: result.rows[0] });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ success: false, message: 'Server error' });
+      res.status(500).json({ success: false, message: 'Lỗi máy chủ' });
     }
   },
 
@@ -40,7 +40,7 @@ module.exports = {
       if (new Date(start_date) >= new Date(end_date)) {
         return res.status(400).json({ 
           success: false, 
-          message: 'End date must be after start date' 
+          message: 'Ngày kết thúc phải sau ngày bắt đầu' 
         });
       }
 
@@ -56,10 +56,10 @@ module.exports = {
       if (err.code === '23505') {
         return res.status(400).json({ 
           success: false, 
-          message: 'Promotion code already exists' 
+          message: 'Mã giảm giá đã tồn tại' 
         });
       }
-      res.status(500).json({ success: false, message: 'Server error' });
+      res.status(500).json({ success: false, message: 'Lỗi máy chủ' });
     }
   },
 
@@ -76,7 +76,7 @@ module.exports = {
       if (new Date(start_date) >= new Date(end_date)) {
         return res.status(400).json({ 
           success: false, 
-          message: 'End date must be after start date' 
+          message: 'Ngày kết thúc phải sau ngày bắt đầu' 
         });
       }
 
@@ -88,7 +88,7 @@ module.exports = {
       ]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, message: 'Promotion not found' });
+        return res.status(404).json({ success: false, message: 'Không tìm thấy mã giảm giá' });
       }
 
       res.json({ success: true, data: result.rows[0] });
@@ -97,10 +97,10 @@ module.exports = {
       if (err.code === '23505') {
         return res.status(400).json({ 
           success: false, 
-          message: 'Promotion code already exists' 
+          message: 'Mã giảm giá đã tồn tại' 
         });
       }
-      res.status(500).json({ success: false, message: 'Server error' });
+      res.status(500).json({ success: false, message: 'Lỗi máy chủ' });
     }
   },
 
@@ -110,13 +110,13 @@ module.exports = {
       const result = await db.query(promotionQueries.deletePromotion, [id]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, message: 'Promotion not found' });
+        return res.status(404).json({ success: false, message: 'Không tìm thấy mã giảm giá' });
       }
 
-      res.json({ success: true, message: 'Promotion deleted successfully' });
+      res.json({ success: true, message: 'Xóa mã giảm giá thành công' });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ success: false, message: 'Server error' });
+      res.status(500).json({ success: false, message: 'Lỗi máy chủ' });
     }
   },
 
@@ -130,7 +130,7 @@ module.exports = {
       if (result.rows.length === 0) {
         return res.status(404).json({ 
           success: false, 
-          message: 'Invalid or expired promotion code' 
+          message: 'Mã giảm giá không hợp lệ hoặc đã hết hạn' 
         });
       }
 
@@ -140,14 +140,14 @@ module.exports = {
       if (totalAmount && promotion.min_order_amount > parseFloat(totalAmount)) {
         return res.status(400).json({
           success: false,
-          message: `Minimum order amount for this promotion is ${promotion.min_order_amount}`
+          message: `Đơn hàng tối thiểu cho mã này là ${promotion.min_order_amount} VNĐ`
         });
       }
 
       res.json({ success: true, data: promotion });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ success: false, message: 'Server error' });
+      res.status(500).json({ success: false, message: 'Lỗi máy chủ' });
     }
   }
 };

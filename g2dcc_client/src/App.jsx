@@ -32,6 +32,7 @@ import AdminBannerList from "./pages/Admin/AdminBannerList";
 import OrderHistory from "./components/features/Order/OrderHistory";
 import AdminPromotionList from "./pages/Admin/AdminPromotionList";
 import Promotions from "./pages/Promotions";
+import AdminStaffList from "./pages/Admin/AdminStaffList";
 
 function App() {
   return (
@@ -73,19 +74,21 @@ function App() {
           >
             <Route element={<AdminLayout />}>
               <Route index element={<AdminHome />} />
-
+              <Route path="product-lists" element={<AdminProductList />} />
+              <Route path="category-lists" element={<AdminCategoryList />} />
+              <Route path="brand-lists" element={<AdminBrandList />} />
+              <Route path="banner-lists" element={<AdminBannerList />} />
+              <Route path="orders" element={<AdminOrderList />} />
+              <Route path="orders/:id" element={<OrderDetail />} />
+              <Route
+                path="orders/:id/shipment"
+                element={<AdminOrderShipment />}
+              />
+              <Route path="promotion-lists" element={<AdminPromotionList />} />
               {/* Admin-only Routes */}
               <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                 <Route path="user-lists" element={<AdminUserLists />} />
-                <Route path="category-lists" element={<AdminCategoryList />} />
-                <Route path="product-lists" element={<AdminProductList />} />
-                <Route path="brand-lists" element={<AdminBrandList />} />
-                <Route path="banner-lists" element={<AdminBannerList />} />
-                <Route path="promotion-lists" element={<AdminPromotionList />} />
-                {/* Admin Order Routes */}
-                <Route path="orders" element={<AdminOrderList />} />
-                <Route path="orders/:id" element={<OrderDetail />} />
-                <Route path="orders/:id/shipment" element={<AdminOrderShipment />} />
+                <Route path="staff-lists" element={<AdminStaffList />} />
               </Route>
             </Route>
           </Route>

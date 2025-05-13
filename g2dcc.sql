@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2025-04-25 12:56:24
+-- Started on 2025-05-12 16:24:03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -28,13 +28,32 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
 
 --
--- TOC entry 5146 (class 0 OID 0)
+-- TOC entry 5147 (class 0 OID 0)
 -- Dependencies: 2
 -- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
+
+--
+-- TOC entry 254 (class 1255 OID 16968)
+-- Name: get_customer_role_id(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_customer_role_id() RETURNS uuid
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    customer_id uuid;
+BEGIN
+    SELECT id INTO customer_id FROM roles WHERE name = 'customer';
+    RETURN customer_id;
+END;
+$$;
+
+
+ALTER FUNCTION public.get_customer_role_id() OWNER TO postgres;
 
 --
 -- TOC entry 253 (class 1255 OID 16414)
@@ -556,7 +575,7 @@ CREATE TABLE public.users (
     address text,
     sex character varying(10),
     active boolean DEFAULT true,
-    role_id uuid DEFAULT 'c2563436-7c90-425e-bef8-3c9279f63a32'::uuid
+    role_id uuid DEFAULT public.get_customer_role_id()
 );
 
 
@@ -578,7 +597,7 @@ CREATE TABLE public.wishlist (
 ALTER TABLE public.wishlist OWNER TO postgres;
 
 --
--- TOC entry 4945 (class 2606 OID 16899)
+-- TOC entry 4946 (class 2606 OID 16899)
 -- Name: address address_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -587,7 +606,7 @@ ALTER TABLE ONLY public.address
 
 
 --
--- TOC entry 4948 (class 2606 OID 16914)
+-- TOC entry 4949 (class 2606 OID 16914)
 -- Name: audit_logs audit_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -596,7 +615,7 @@ ALTER TABLE ONLY public.audit_logs
 
 
 --
--- TOC entry 4941 (class 2606 OID 16885)
+-- TOC entry 4942 (class 2606 OID 16885)
 -- Name: banners banners_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -605,7 +624,7 @@ ALTER TABLE ONLY public.banners
 
 
 --
--- TOC entry 4952 (class 2606 OID 16942)
+-- TOC entry 4953 (class 2606 OID 16942)
 -- Name: brands brands_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -614,7 +633,7 @@ ALTER TABLE ONLY public.brands
 
 
 --
--- TOC entry 4954 (class 2606 OID 16944)
+-- TOC entry 4955 (class 2606 OID 16944)
 -- Name: brands brands_slug_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -623,7 +642,7 @@ ALTER TABLE ONLY public.brands
 
 
 --
--- TOC entry 4912 (class 2606 OID 16753)
+-- TOC entry 4913 (class 2606 OID 16753)
 -- Name: cart_products cart_item_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -632,7 +651,7 @@ ALTER TABLE ONLY public.cart_products
 
 
 --
--- TOC entry 4907 (class 2606 OID 16734)
+-- TOC entry 4908 (class 2606 OID 16734)
 -- Name: cart cart_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -641,7 +660,7 @@ ALTER TABLE ONLY public.cart
 
 
 --
--- TOC entry 4914 (class 2606 OID 16751)
+-- TOC entry 4915 (class 2606 OID 16751)
 -- Name: cart_products cart_products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -650,7 +669,7 @@ ALTER TABLE ONLY public.cart_products
 
 
 --
--- TOC entry 4909 (class 2606 OID 16736)
+-- TOC entry 4910 (class 2606 OID 16736)
 -- Name: cart cart_user_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -659,7 +678,7 @@ ALTER TABLE ONLY public.cart
 
 
 --
--- TOC entry 4868 (class 2606 OID 16508)
+-- TOC entry 4869 (class 2606 OID 16508)
 -- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -668,7 +687,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 4870 (class 2606 OID 16510)
+-- TOC entry 4871 (class 2606 OID 16510)
 -- Name: categories categories_slug_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -677,7 +696,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 4860 (class 2606 OID 16426)
+-- TOC entry 4861 (class 2606 OID 16426)
 -- Name: chat_threads chat_threads_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -686,7 +705,7 @@ ALTER TABLE ONLY public.chat_threads
 
 
 --
--- TOC entry 4926 (class 2606 OID 16816)
+-- TOC entry 4927 (class 2606 OID 16816)
 -- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -695,7 +714,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- TOC entry 4901 (class 2606 OID 16683)
+-- TOC entry 4902 (class 2606 OID 16683)
 -- Name: inventory_logs inventory_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -704,7 +723,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- TOC entry 4862 (class 2606 OID 16467)
+-- TOC entry 4863 (class 2606 OID 16467)
 -- Name: message_thread message_thread_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -713,7 +732,7 @@ ALTER TABLE ONLY public.message_thread
 
 
 --
--- TOC entry 4939 (class 2606 OID 16866)
+-- TOC entry 4940 (class 2606 OID 16866)
 -- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -722,7 +741,7 @@ ALTER TABLE ONLY public.notifications
 
 
 --
--- TOC entry 4899 (class 2606 OID 16664)
+-- TOC entry 4900 (class 2606 OID 16664)
 -- Name: order_shipments order_shipments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -731,7 +750,7 @@ ALTER TABLE ONLY public.order_shipments
 
 
 --
--- TOC entry 4891 (class 2606 OID 16614)
+-- TOC entry 4892 (class 2606 OID 16614)
 -- Name: orders orders_order_number_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -740,7 +759,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4893 (class 2606 OID 16612)
+-- TOC entry 4894 (class 2606 OID 16612)
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -749,7 +768,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4895 (class 2606 OID 16636)
+-- TOC entry 4896 (class 2606 OID 16636)
 -- Name: payments payments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -758,7 +777,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- TOC entry 4905 (class 2606 OID 16709)
+-- TOC entry 4906 (class 2606 OID 16709)
 -- Name: product_images product_images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -767,7 +786,7 @@ ALTER TABLE ONLY public.product_images
 
 
 --
--- TOC entry 4878 (class 2606 OID 16546)
+-- TOC entry 4879 (class 2606 OID 16546)
 -- Name: product_variants product_variants_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -776,7 +795,7 @@ ALTER TABLE ONLY public.product_variants
 
 
 --
--- TOC entry 4880 (class 2606 OID 16548)
+-- TOC entry 4881 (class 2606 OID 16548)
 -- Name: product_variants product_variants_sku_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -785,7 +804,7 @@ ALTER TABLE ONLY public.product_variants
 
 
 --
--- TOC entry 4874 (class 2606 OID 16528)
+-- TOC entry 4875 (class 2606 OID 16528)
 -- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -794,7 +813,7 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4876 (class 2606 OID 16530)
+-- TOC entry 4877 (class 2606 OID 16530)
 -- Name: products products_slug_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -803,7 +822,7 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4884 (class 2606 OID 16593)
+-- TOC entry 4885 (class 2606 OID 16593)
 -- Name: promotions promotions_code_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -812,7 +831,7 @@ ALTER TABLE ONLY public.promotions
 
 
 --
--- TOC entry 4886 (class 2606 OID 16591)
+-- TOC entry 4887 (class 2606 OID 16591)
 -- Name: promotions promotions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -821,7 +840,7 @@ ALTER TABLE ONLY public.promotions
 
 
 --
--- TOC entry 4922 (class 2606 OID 16786)
+-- TOC entry 4923 (class 2606 OID 16786)
 -- Name: reviews review_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -830,7 +849,7 @@ ALTER TABLE ONLY public.reviews
 
 
 --
--- TOC entry 4924 (class 2606 OID 16784)
+-- TOC entry 4925 (class 2606 OID 16784)
 -- Name: reviews reviews_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -839,7 +858,7 @@ ALTER TABLE ONLY public.reviews
 
 
 --
--- TOC entry 4864 (class 2606 OID 16491)
+-- TOC entry 4865 (class 2606 OID 16491)
 -- Name: roles roles_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -848,7 +867,7 @@ ALTER TABLE ONLY public.roles
 
 
 --
--- TOC entry 4866 (class 2606 OID 16489)
+-- TOC entry 4867 (class 2606 OID 16489)
 -- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -857,7 +876,7 @@ ALTER TABLE ONLY public.roles
 
 
 --
--- TOC entry 4897 (class 2606 OID 16655)
+-- TOC entry 4898 (class 2606 OID 16655)
 -- Name: shipping_methods shipping_methods_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -866,7 +885,7 @@ ALTER TABLE ONLY public.shipping_methods
 
 
 --
--- TOC entry 4854 (class 2606 OID 16413)
+-- TOC entry 4855 (class 2606 OID 16413)
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -875,7 +894,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4856 (class 2606 OID 16409)
+-- TOC entry 4857 (class 2606 OID 16409)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -884,7 +903,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4858 (class 2606 OID 16411)
+-- TOC entry 4859 (class 2606 OID 16411)
 -- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -893,7 +912,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4933 (class 2606 OID 16844)
+-- TOC entry 4934 (class 2606 OID 16844)
 -- Name: wishlist wishlist_item_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -902,7 +921,7 @@ ALTER TABLE ONLY public.wishlist
 
 
 --
--- TOC entry 4935 (class 2606 OID 16842)
+-- TOC entry 4936 (class 2606 OID 16842)
 -- Name: wishlist wishlist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -911,7 +930,7 @@ ALTER TABLE ONLY public.wishlist
 
 
 --
--- TOC entry 4946 (class 1259 OID 16905)
+-- TOC entry 4947 (class 1259 OID 16905)
 -- Name: idx_address_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -919,7 +938,7 @@ CREATE INDEX idx_address_user ON public.address USING btree (user_id);
 
 
 --
--- TOC entry 4949 (class 1259 OID 16921)
+-- TOC entry 4950 (class 1259 OID 16921)
 -- Name: idx_audit_logs_entity; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -927,7 +946,7 @@ CREATE INDEX idx_audit_logs_entity ON public.audit_logs USING btree (entity_type
 
 
 --
--- TOC entry 4950 (class 1259 OID 16920)
+-- TOC entry 4951 (class 1259 OID 16920)
 -- Name: idx_audit_logs_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -935,7 +954,7 @@ CREATE INDEX idx_audit_logs_user ON public.audit_logs USING btree (user_id);
 
 
 --
--- TOC entry 4942 (class 1259 OID 16886)
+-- TOC entry 4943 (class 1259 OID 16886)
 -- Name: idx_banners_active; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -943,7 +962,7 @@ CREATE INDEX idx_banners_active ON public.banners USING btree (is_active);
 
 
 --
--- TOC entry 4943 (class 1259 OID 16887)
+-- TOC entry 4944 (class 1259 OID 16887)
 -- Name: idx_banners_order; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -951,7 +970,7 @@ CREATE INDEX idx_banners_order ON public.banners USING btree (display_order);
 
 
 --
--- TOC entry 4915 (class 1259 OID 16769)
+-- TOC entry 4916 (class 1259 OID 16769)
 -- Name: idx_cart_products_cart; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -959,7 +978,7 @@ CREATE INDEX idx_cart_products_cart ON public.cart_products USING btree (cart_id
 
 
 --
--- TOC entry 4916 (class 1259 OID 16770)
+-- TOC entry 4917 (class 1259 OID 16770)
 -- Name: idx_cart_products_product; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -967,7 +986,7 @@ CREATE INDEX idx_cart_products_product ON public.cart_products USING btree (prod
 
 
 --
--- TOC entry 4917 (class 1259 OID 16771)
+-- TOC entry 4918 (class 1259 OID 16771)
 -- Name: idx_cart_products_variant; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -975,7 +994,7 @@ CREATE INDEX idx_cart_products_variant ON public.cart_products USING btree (vari
 
 
 --
--- TOC entry 4910 (class 1259 OID 16742)
+-- TOC entry 4911 (class 1259 OID 16742)
 -- Name: idx_cart_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -983,7 +1002,7 @@ CREATE INDEX idx_cart_user ON public.cart USING btree (user_id);
 
 
 --
--- TOC entry 4927 (class 1259 OID 16834)
+-- TOC entry 4928 (class 1259 OID 16834)
 -- Name: idx_comments_parent; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -991,7 +1010,7 @@ CREATE INDEX idx_comments_parent ON public.comments USING btree (parent_comment_
 
 
 --
--- TOC entry 4928 (class 1259 OID 16832)
+-- TOC entry 4929 (class 1259 OID 16832)
 -- Name: idx_comments_product; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -999,7 +1018,7 @@ CREATE INDEX idx_comments_product ON public.comments USING btree (product_id);
 
 
 --
--- TOC entry 4929 (class 1259 OID 16833)
+-- TOC entry 4930 (class 1259 OID 16833)
 -- Name: idx_comments_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1007,7 +1026,7 @@ CREATE INDEX idx_comments_user ON public.comments USING btree (user_id);
 
 
 --
--- TOC entry 4936 (class 1259 OID 16873)
+-- TOC entry 4937 (class 1259 OID 16873)
 -- Name: idx_notifications_read; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1015,7 +1034,7 @@ CREATE INDEX idx_notifications_read ON public.notifications USING btree (is_read
 
 
 --
--- TOC entry 4937 (class 1259 OID 16872)
+-- TOC entry 4938 (class 1259 OID 16872)
 -- Name: idx_notifications_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1023,7 +1042,7 @@ CREATE INDEX idx_notifications_user ON public.notifications USING btree (user_id
 
 
 --
--- TOC entry 4887 (class 1259 OID 16931)
+-- TOC entry 4888 (class 1259 OID 16931)
 -- Name: idx_orders_created; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1031,7 +1050,7 @@ CREATE INDEX idx_orders_created ON public.orders USING btree (created_at);
 
 
 --
--- TOC entry 4888 (class 1259 OID 16930)
+-- TOC entry 4889 (class 1259 OID 16930)
 -- Name: idx_orders_status; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1039,7 +1058,7 @@ CREATE INDEX idx_orders_status ON public.orders USING btree (status);
 
 
 --
--- TOC entry 4889 (class 1259 OID 16929)
+-- TOC entry 4890 (class 1259 OID 16929)
 -- Name: idx_orders_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1047,7 +1066,7 @@ CREATE INDEX idx_orders_user ON public.orders USING btree (user_id);
 
 
 --
--- TOC entry 4902 (class 1259 OID 16725)
+-- TOC entry 4903 (class 1259 OID 16725)
 -- Name: idx_product_images_product; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1055,7 +1074,7 @@ CREATE INDEX idx_product_images_product ON public.product_images USING btree (pr
 
 
 --
--- TOC entry 4903 (class 1259 OID 16726)
+-- TOC entry 4904 (class 1259 OID 16726)
 -- Name: idx_product_images_variant; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1063,7 +1082,7 @@ CREATE INDEX idx_product_images_variant ON public.product_images USING btree (va
 
 
 --
--- TOC entry 4871 (class 1259 OID 16928)
+-- TOC entry 4872 (class 1259 OID 16928)
 -- Name: idx_products_category; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1071,7 +1090,7 @@ CREATE INDEX idx_products_category ON public.products USING btree (category_id);
 
 
 --
--- TOC entry 4872 (class 1259 OID 16927)
+-- TOC entry 4873 (class 1259 OID 16927)
 -- Name: idx_products_name; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1079,7 +1098,7 @@ CREATE INDEX idx_products_name ON public.products USING btree (name);
 
 
 --
--- TOC entry 4881 (class 1259 OID 16595)
+-- TOC entry 4882 (class 1259 OID 16595)
 -- Name: idx_promotions_active; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1087,7 +1106,7 @@ CREATE INDEX idx_promotions_active ON public.promotions USING btree (is_active);
 
 
 --
--- TOC entry 4882 (class 1259 OID 16594)
+-- TOC entry 4883 (class 1259 OID 16594)
 -- Name: idx_promotions_code; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1095,7 +1114,7 @@ CREATE INDEX idx_promotions_code ON public.promotions USING btree (code);
 
 
 --
--- TOC entry 4918 (class 1259 OID 16802)
+-- TOC entry 4919 (class 1259 OID 16802)
 -- Name: idx_reviews_product; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1103,7 +1122,7 @@ CREATE INDEX idx_reviews_product ON public.reviews USING btree (product_id);
 
 
 --
--- TOC entry 4919 (class 1259 OID 16803)
+-- TOC entry 4920 (class 1259 OID 16803)
 -- Name: idx_reviews_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1111,7 +1130,7 @@ CREATE INDEX idx_reviews_user ON public.reviews USING btree (user_id);
 
 
 --
--- TOC entry 4920 (class 1259 OID 16804)
+-- TOC entry 4921 (class 1259 OID 16804)
 -- Name: idx_reviews_variant; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1119,7 +1138,7 @@ CREATE INDEX idx_reviews_variant ON public.reviews USING btree (variant_id);
 
 
 --
--- TOC entry 4851 (class 1259 OID 16925)
+-- TOC entry 4852 (class 1259 OID 16925)
 -- Name: idx_users_email; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1127,7 +1146,7 @@ CREATE INDEX idx_users_email ON public.users USING btree (email);
 
 
 --
--- TOC entry 4852 (class 1259 OID 16926)
+-- TOC entry 4853 (class 1259 OID 16926)
 -- Name: idx_users_username; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1135,7 +1154,7 @@ CREATE INDEX idx_users_username ON public.users USING btree (username);
 
 
 --
--- TOC entry 4930 (class 1259 OID 16856)
+-- TOC entry 4931 (class 1259 OID 16856)
 -- Name: idx_wishlist_product; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1143,7 +1162,7 @@ CREATE INDEX idx_wishlist_product ON public.wishlist USING btree (product_id);
 
 
 --
--- TOC entry 4931 (class 1259 OID 16855)
+-- TOC entry 4932 (class 1259 OID 16855)
 -- Name: idx_wishlist_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1151,7 +1170,7 @@ CREATE INDEX idx_wishlist_user ON public.wishlist USING btree (user_id);
 
 
 --
--- TOC entry 4991 (class 2620 OID 16415)
+-- TOC entry 4992 (class 2620 OID 16415)
 -- Name: users trigger_set_timestamp; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -1159,7 +1178,7 @@ CREATE TRIGGER trigger_set_timestamp BEFORE UPDATE ON public.users FOR EACH ROW 
 
 
 --
--- TOC entry 4995 (class 2620 OID 16950)
+-- TOC entry 4996 (class 2620 OID 16950)
 -- Name: brands trigger_update_brand; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -1167,7 +1186,7 @@ CREATE TRIGGER trigger_update_brand BEFORE UPDATE ON public.brands FOR EACH ROW 
 
 
 --
--- TOC entry 4993 (class 2620 OID 16924)
+-- TOC entry 4994 (class 2620 OID 16924)
 -- Name: categories trigger_update_categories; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -1175,7 +1194,7 @@ CREATE TRIGGER trigger_update_categories BEFORE UPDATE ON public.categories FOR 
 
 
 --
--- TOC entry 4994 (class 2620 OID 16923)
+-- TOC entry 4995 (class 2620 OID 16923)
 -- Name: products trigger_update_products; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -1183,7 +1202,7 @@ CREATE TRIGGER trigger_update_products BEFORE UPDATE ON public.products FOR EACH
 
 
 --
--- TOC entry 4992 (class 2620 OID 16922)
+-- TOC entry 4993 (class 2620 OID 16922)
 -- Name: users trigger_update_users; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -1191,7 +1210,7 @@ CREATE TRIGGER trigger_update_users BEFORE UPDATE ON public.users FOR EACH ROW E
 
 
 --
--- TOC entry 4989 (class 2606 OID 16900)
+-- TOC entry 4990 (class 2606 OID 16900)
 -- Name: address address_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1200,7 +1219,7 @@ ALTER TABLE ONLY public.address
 
 
 --
--- TOC entry 4990 (class 2606 OID 16915)
+-- TOC entry 4991 (class 2606 OID 16915)
 -- Name: audit_logs audit_logs_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1209,7 +1228,7 @@ ALTER TABLE ONLY public.audit_logs
 
 
 --
--- TOC entry 4977 (class 2606 OID 16754)
+-- TOC entry 4978 (class 2606 OID 16754)
 -- Name: cart_products cart_products_cart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1218,7 +1237,7 @@ ALTER TABLE ONLY public.cart_products
 
 
 --
--- TOC entry 4978 (class 2606 OID 16759)
+-- TOC entry 4979 (class 2606 OID 16759)
 -- Name: cart_products cart_products_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1227,7 +1246,7 @@ ALTER TABLE ONLY public.cart_products
 
 
 --
--- TOC entry 4979 (class 2606 OID 16764)
+-- TOC entry 4980 (class 2606 OID 16764)
 -- Name: cart_products cart_products_variant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1236,7 +1255,7 @@ ALTER TABLE ONLY public.cart_products
 
 
 --
--- TOC entry 4976 (class 2606 OID 16737)
+-- TOC entry 4977 (class 2606 OID 16737)
 -- Name: cart cart_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1245,7 +1264,7 @@ ALTER TABLE ONLY public.cart
 
 
 --
--- TOC entry 4960 (class 2606 OID 16511)
+-- TOC entry 4961 (class 2606 OID 16511)
 -- Name: categories categories_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1254,7 +1273,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 4956 (class 2606 OID 16427)
+-- TOC entry 4957 (class 2606 OID 16427)
 -- Name: chat_threads chat_threads_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1263,7 +1282,7 @@ ALTER TABLE ONLY public.chat_threads
 
 
 --
--- TOC entry 4983 (class 2606 OID 16827)
+-- TOC entry 4984 (class 2606 OID 16827)
 -- Name: comments comments_parent_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1272,7 +1291,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- TOC entry 4984 (class 2606 OID 16822)
+-- TOC entry 4985 (class 2606 OID 16822)
 -- Name: comments comments_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1281,7 +1300,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- TOC entry 4985 (class 2606 OID 16817)
+-- TOC entry 4986 (class 2606 OID 16817)
 -- Name: comments comments_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1290,7 +1309,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- TOC entry 4973 (class 2606 OID 16720)
+-- TOC entry 4974 (class 2606 OID 16720)
 -- Name: product_images fk_product_image_variant; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1299,7 +1318,7 @@ ALTER TABLE ONLY public.product_images
 
 
 --
--- TOC entry 4955 (class 2606 OID 16492)
+-- TOC entry 4956 (class 2606 OID 16492)
 -- Name: users fk_users_role; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1308,7 +1327,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4970 (class 2606 OID 16694)
+-- TOC entry 4971 (class 2606 OID 16694)
 -- Name: inventory_logs inventory_logs_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1317,7 +1336,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- TOC entry 4971 (class 2606 OID 16684)
+-- TOC entry 4972 (class 2606 OID 16684)
 -- Name: inventory_logs inventory_logs_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1326,7 +1345,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- TOC entry 4972 (class 2606 OID 16689)
+-- TOC entry 4973 (class 2606 OID 16689)
 -- Name: inventory_logs inventory_logs_variant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1335,7 +1354,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- TOC entry 4957 (class 2606 OID 16478)
+-- TOC entry 4958 (class 2606 OID 16478)
 -- Name: message_thread message_thread_parent_message_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1344,7 +1363,7 @@ ALTER TABLE ONLY public.message_thread
 
 
 --
--- TOC entry 4958 (class 2606 OID 16473)
+-- TOC entry 4959 (class 2606 OID 16473)
 -- Name: message_thread message_thread_sender_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1353,7 +1372,7 @@ ALTER TABLE ONLY public.message_thread
 
 
 --
--- TOC entry 4959 (class 2606 OID 16468)
+-- TOC entry 4960 (class 2606 OID 16468)
 -- Name: message_thread message_thread_thread_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1362,7 +1381,7 @@ ALTER TABLE ONLY public.message_thread
 
 
 --
--- TOC entry 4988 (class 2606 OID 16867)
+-- TOC entry 4989 (class 2606 OID 16867)
 -- Name: notifications notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1371,7 +1390,7 @@ ALTER TABLE ONLY public.notifications
 
 
 --
--- TOC entry 4968 (class 2606 OID 16665)
+-- TOC entry 4969 (class 2606 OID 16665)
 -- Name: order_shipments order_shipments_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1380,7 +1399,7 @@ ALTER TABLE ONLY public.order_shipments
 
 
 --
--- TOC entry 4969 (class 2606 OID 16670)
+-- TOC entry 4970 (class 2606 OID 16670)
 -- Name: order_shipments order_shipments_shipping_method_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1389,7 +1408,7 @@ ALTER TABLE ONLY public.order_shipments
 
 
 --
--- TOC entry 4964 (class 2606 OID 16620)
+-- TOC entry 4965 (class 2606 OID 16620)
 -- Name: orders orders_promotion_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1398,7 +1417,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4965 (class 2606 OID 16615)
+-- TOC entry 4966 (class 2606 OID 16615)
 -- Name: orders orders_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1407,7 +1426,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4966 (class 2606 OID 16637)
+-- TOC entry 4967 (class 2606 OID 16637)
 -- Name: payments payments_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1416,7 +1435,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- TOC entry 4967 (class 2606 OID 16642)
+-- TOC entry 4968 (class 2606 OID 16642)
 -- Name: payments payments_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1425,7 +1444,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- TOC entry 4974 (class 2606 OID 16710)
+-- TOC entry 4975 (class 2606 OID 16710)
 -- Name: product_images product_images_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1434,7 +1453,7 @@ ALTER TABLE ONLY public.product_images
 
 
 --
--- TOC entry 4975 (class 2606 OID 16715)
+-- TOC entry 4976 (class 2606 OID 16715)
 -- Name: product_images product_images_variant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1443,7 +1462,7 @@ ALTER TABLE ONLY public.product_images
 
 
 --
--- TOC entry 4963 (class 2606 OID 16549)
+-- TOC entry 4964 (class 2606 OID 16549)
 -- Name: product_variants product_variants_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1452,7 +1471,7 @@ ALTER TABLE ONLY public.product_variants
 
 
 --
--- TOC entry 4961 (class 2606 OID 16945)
+-- TOC entry 4962 (class 2606 OID 16945)
 -- Name: products products_brand_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1461,7 +1480,7 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4962 (class 2606 OID 16531)
+-- TOC entry 4963 (class 2606 OID 16531)
 -- Name: products products_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1470,7 +1489,7 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4980 (class 2606 OID 16792)
+-- TOC entry 4981 (class 2606 OID 16792)
 -- Name: reviews reviews_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1479,7 +1498,7 @@ ALTER TABLE ONLY public.reviews
 
 
 --
--- TOC entry 4981 (class 2606 OID 16787)
+-- TOC entry 4982 (class 2606 OID 16787)
 -- Name: reviews reviews_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1488,7 +1507,7 @@ ALTER TABLE ONLY public.reviews
 
 
 --
--- TOC entry 4982 (class 2606 OID 16797)
+-- TOC entry 4983 (class 2606 OID 16797)
 -- Name: reviews reviews_variant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1497,7 +1516,7 @@ ALTER TABLE ONLY public.reviews
 
 
 --
--- TOC entry 4986 (class 2606 OID 16850)
+-- TOC entry 4987 (class 2606 OID 16850)
 -- Name: wishlist wishlist_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1506,7 +1525,7 @@ ALTER TABLE ONLY public.wishlist
 
 
 --
--- TOC entry 4987 (class 2606 OID 16845)
+-- TOC entry 4988 (class 2606 OID 16845)
 -- Name: wishlist wishlist_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1514,7 +1533,7 @@ ALTER TABLE ONLY public.wishlist
     ADD CONSTRAINT wishlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-04-25 12:56:25
+-- Completed on 2025-05-12 16:24:04
 
 --
 -- PostgreSQL database dump complete

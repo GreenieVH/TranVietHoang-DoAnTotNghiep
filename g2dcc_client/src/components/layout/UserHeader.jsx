@@ -1,83 +1,3 @@
-// import React, { useState } from "react";
-// import { useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { useLocalStorage } from "../../hooks/useLocalStorage";
-// import { IoSunnyOutline } from "react-icons/io5";
-// import { LuSunMoon } from "react-icons/lu";
-// import user_default from "../../assets/Images/img_user_default.png";
-// import UserDetail from "../features/UserDetail";
-// import { useUser } from "../../context/UserContext";
-// function UserHeader() {
-//   const { value, setValue } = useLocalStorage("theme", "light");
-//   const navigate = useNavigate();
-//   const [isLoad, setIsLoad] = useState(false);
-//   const [showDetail, setShowDetail] = useState(false);
-//   const { user } = useUser();
-
-//   useEffect(() => {
-//     document.documentElement.setAttribute("data-theme", value);
-//   }, [value]);
-
-//   return (
-//     <>
-//       {isLoad ? <span className="loader-thin"></span> : <></>}
-//       <div className="w-full h-14 flex items-center justify-between bg-ghead text-thead px-10">
-//         <div>logo</div>
-//         <div className="flex items-center gap-4">
-//           <div
-//             className="cursor-pointer font-bold text-thead"
-//             onClick={() => navigate("/forum")}
-//           >
-//             Diễn đàn
-//           </div>
-//           <div
-//             className="cursor-pointer font-bold text-thead"
-//             onClick={() => navigate("/products")}
-//           >
-//             Sản phẩm
-//           </div>
-//         </div>
-//         <div className="flex items-center">
-//           <div
-//             onClick={() => setValue(value === "light" ? "dark" : "light")}
-//             className="px-4 py-2 rounded-full cursor-pointer"
-//           >
-//             {value === "light" ? (
-//               <IoSunnyOutline className="w-5 h-5 font-bold" />
-//             ) : (
-//               <LuSunMoon className="w-5 h-5" />
-//             )}
-//           </div>
-//           {user ? (
-//             <div className="cursor-pointer h-10 w-10 relative">
-//               <img
-//                 src={
-//                   user?.img && user.img.startsWith("http")
-//                     ? user.img
-//                     : `http://localhost:4000${user?.img || user_default}`
-//                 }
-//                 alt="default"
-//                 className="object-cover rounded-full size-10"
-//                 onClick={() => setShowDetail(!showDetail)}
-//               />
-//               <UserDetail
-//                 showDetail={showDetail}
-//                 user={user}
-//                 setIsLoad={setIsLoad}
-//                 setShowDetail={setShowDetail}
-//               />
-//             </div>
-//           ) : (
-//             <button className="rounded-2xl p-2" onClick={() => navigate("/login")}>Đăng nhập</button>
-//           )}
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-// export default UserHeader;
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -102,15 +22,16 @@ import {
   Drawer,
 } from "antd";
 import user_default from "../../assets/Images/img_user_default.png";
-import logo from "../../assets/Images/logoxm.png"; // Thay bằng logo của bạn
+import logo from "../../assets/Images/logoxm.png"; 
 import CartBadge from "../common/CartBadge";
 import WishlistBadge from "../common/WishlistBadge";
-
+import { useAuth } from "../../context/AuthContext";
 const UserHeader = () => {
   const { value, setValue } = useLocalStorage("theme", "light");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { user } = useUser();
+  const { logout } = useAuth();
+  const { user,refreshProfile } = useUser();
   const [searchVisible, setSearchVisible] = useState(false);
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
 
@@ -130,8 +51,11 @@ const UserHeader = () => {
       <Menu.Item key="orders" onClick={() => navigate("/orders")}>
         Đơn hàng của tôi
       </Menu.Item>
-      <Menu.Item key="wishlist" onClick={() => navigate("/wishlist")}>
+      <Menu.Item key="wishlist" onClick={() => navigate("/profile/wishlist")}>
         Sản phẩm yêu thích
+      </Menu.Item>
+      <Menu.Item key="order-history" onClick={() => navigate("/profile/order-history")}>
+       Lịch sử mua hàng
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="logout" onClick={() => handleLogout()}>
@@ -170,7 +94,9 @@ const UserHeader = () => {
 
   const handleLogout = async () => {
     setLoading(true);
-    // Xử lý đăng xuất ở đây
+    await logout();
+    await refreshProfile();
+    navigate("/login");
     setLoading(false);
   };
 
@@ -229,7 +155,7 @@ const UserHeader = () => {
               </button>
 
               {/* Wishlist */}
-              <Link to="/wishlist">
+              <Link to="/profile/wishlist">
                 <WishlistBadge />
               </Link>
 
@@ -264,7 +190,7 @@ const UserHeader = () => {
                   >
                     Đăng nhập
                   </Button>
-                  <Button type="primary" onClick={() => navigate("/register")}>
+                  <Button type="primary" onClick={() => navigate("/login")}>
                     Đăng ký
                   </Button>
                 </Space>
@@ -349,7 +275,7 @@ const UserHeader = () => {
                 </button>
                 <button
                   className="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
-                  onClick={() => navigate("/wishlist")}
+                  onClick={() => navigate("/profile/wishlist")}
                 >
                   Yêu thích
                 </button>
@@ -387,7 +313,7 @@ const UserHeader = () => {
                   block
                   type="primary"
                   onClick={() => {
-                    navigate("/register");
+                    navigate("/login");
                     setMobileMenuVisible(false);
                   }}
                 >

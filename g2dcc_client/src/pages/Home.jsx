@@ -1,9 +1,14 @@
-import { Carousel } from "antd";
+import { Carousel, Card, Col, Row } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAllBanners } from "../api/banners";
 import { getProducts } from "../api/product";
 import { useToast } from "../context/ToastContext";
-// import { useUser } from "../context/UserContext";
+import {
+  CheckCircleOutlined,
+  CarOutlined,
+  CreditCardOutlined,
+  ToolOutlined,
+} from "@ant-design/icons";
 import ProductCard from "../components/features/Product/ProductCard";
 
 function Home() {
@@ -18,19 +23,19 @@ function Home() {
         // Fetch banners
         const bannerResponse = await getAllBanners();
         const activeBanners = bannerResponse.data
-          .filter(banner => banner.is_active)
+          .filter((banner) => banner.is_active)
           .sort((a, b) => a.display_order - b.display_order);
         setBanners(activeBanners);
 
         // Fetch featured products
-        const productResponse = await getProducts({ 
+        const productResponse = await getProducts({
           is_featured: "true",
-          sort: 'created_at:desc',
-          limit: 8 
+          sort: "created_at:desc",
+          limit: 8,
         });
         setProducts(productResponse.products);
       } catch (error) {
-        showToast('Lỗi khi tải dữ liệu', 'error');
+        showToast("Lỗi khi tải dữ liệu", "error");
       } finally {
         setLoading(false);
       }
@@ -52,12 +57,12 @@ function Home() {
 
     const handleMouseUp = () => {
       if (!isDragging && banner.redirect_url) {
-        window.open(banner.redirect_url, '_blank', 'noopener,noreferrer');
+        window.open(banner.redirect_url, "_blank", "noopener,noreferrer");
       }
     };
 
     return (
-      <div 
+      <div
         className="relative cursor-pointer"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -76,8 +81,8 @@ function Home() {
     <div className="min-h-screen bg-gbg text-gtext px-10 pt-5">
       <div className="mx-auto">
         {/* Banner Slider */}
-        <Carousel 
-          autoplay 
+        <Carousel
+          autoplay
           className="mb-8"
           effect="scrollx"
           autoplaySpeed={4000}
@@ -114,22 +119,22 @@ function Home() {
                 settings: {
                   slidesToShow: 3,
                   slidesToScroll: 1,
-                }
+                },
               },
               {
                 breakpoint: 768,
                 settings: {
                   slidesToShow: 2,
                   slidesToScroll: 1,
-                }
+                },
               },
               {
                 breakpoint: 480,
                 settings: {
                   slidesToShow: 1,
                   slidesToScroll: 1,
-                }
-              }
+                },
+              },
             ]}
             className="product-carousel"
           >
@@ -140,9 +145,54 @@ function Home() {
             ))}
           </Carousel>
         </div>
+        <ServiceCards />
       </div>
     </div>
   );
 }
+const ServiceCards = () => {
+  const services = [
+    {
+      icon: <CheckCircleOutlined style={{ fontSize: 32, color: "#1890ff" }} />,
+      title: "CAM KẾT CHẤT LƯỢNG",
+      description: "CHÍNH HÃNG",
+    },
+    {
+      icon: <CarOutlined style={{ fontSize: 32, color: "#52c41a" }} />,
+      title: "GIAO HÀNG MIỄN PHÍ",
+      description: "NHANH – UY TÍN",
+    },
+    {
+      icon: <CreditCardOutlined style={{ fontSize: 32, color: "#722ed1" }} />,
+      title: "MUA HÀNG TRẢ GÓP",
+      description: "THỦ TỤC NHANH GỌN",
+    },
+    {
+      icon: <ToolOutlined style={{ fontSize: 32, color: "#eb2f96" }} />,
+      title: "SỬA CHỮA TẬN NƠI",
+      description: "CỨU HỘ KHẨN CẤP",
+    },
+  ];
+
+  return (
+    <div className="my-12">
+      <Row gutter={[16, 16]}>
+        {services.map((item, index) => (
+          <Col key={index} xs={24} sm={12} md={6}>
+            <Card
+              hoverable
+              bordered
+              style={{ textAlign: "center", borderRadius: 12,backgroundColor:"pink" }}
+            >
+              <div style={{ marginBottom: 12 }}>{item.icon}</div>
+              <h4 style={{ fontWeight: "bold" }}>{item.title}</h4>
+              <p style={{ color: "gray" }}>{item.description}</p>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </div>
+  );
+};
 
 export default Home;
