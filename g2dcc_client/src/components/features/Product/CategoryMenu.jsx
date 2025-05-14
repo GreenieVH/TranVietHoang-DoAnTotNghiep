@@ -48,11 +48,11 @@ const CategoryMenu = () => {
     const renderMenuItems = (items) =>
         items.map(item =>
             item.children.length > 0 ? (
-                <SubMenu key={item.id} title={item.name}>
+                <SubMenu key={item.id} title={item.name} className='font-semibold'>
                     {renderMenuItems(item.children)}
                 </SubMenu>
             ) : (
-                <Menu.Item key={item.id} onClick={() => handleCategoryClick(item)}>
+                <Menu.Item key={item.id} onClick={() => handleCategoryClick(item)} className='font-semibold'>
                     {item.name}
                 </Menu.Item>
             )

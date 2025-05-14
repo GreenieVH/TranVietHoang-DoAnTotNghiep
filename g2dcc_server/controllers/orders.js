@@ -137,7 +137,7 @@ module.exports = {
       }
 
       // Check if user is authorized to view this order
-      if (result.rows[0].user_id !== req.user.id && req.user.role !== "admin") {
+      if (result.rows[0].user_id !== req.user.id && req.user?.role !== "admin") {
         return res.status(403).json({
           success: false,
           message: "Bạn không có quyền xem đơn hàng này",
@@ -174,7 +174,7 @@ module.exports = {
       }
 
       // Check if user is authorized to update this order
-      if (orderResult.rows[0].user_id !== req.user.id && req.user.role !== "admin") {
+      if (orderResult.rows[0].user_id !== req.user.id && req.user?.role !== "admin") {
         return res.status(403).json({
           success: false,
           message: "Bạn không có quyền cập nhật đơn hàng này",
@@ -221,7 +221,7 @@ module.exports = {
       }
 
       // Check if user is authorized to update this order
-      if (orderResult.rows[0].user_id !== req.user.id && req.user.role !== "admin") {
+      if (orderResult.rows[0].user_id !== req.user.id && req.user?.role !== "admin") {
         return res.status(403).json({
           success: false,
           message: "Bạn không có quyền cập nhật đơn hàng này",
@@ -269,33 +269,46 @@ module.exports = {
 
   getOrders: async (req, res) => {
     try {
-      const { page = 1, limit = 10, status, payment_status } = req.query;
+      const { 
+        page = 1, 
+        limit = 10, 
+        status, 
+        payment_status,
+        startDate,
+        endDate 
+      } = req.query;
       const offset = (page - 1) * limit;
 
       const result = await db.query(orderQueries.getOrders, [
         status,
         payment_status,
+        startDate,
+        endDate,
         limit,
         offset,
       ]);
-       // Get total count
-       const countResult = await db.query(orderQueries.getOrdersCount, [
+
+      // Get total count
+      const countResult = await db.query(orderQueries.getOrdersCount, [
         status,
         payment_status,
+        startDate,
+        endDate,
       ]);
       const total = parseInt(countResult.rows[0].count, 10);
 
       res.json({
         success: true,
         message: "Lấy danh sách đơn hàng thành công",
-        data: {orders: result.rows,
-           pagination: {
+        data: {
+          orders: result.rows,
+          pagination: {
             total,
             page: parseInt(page, 10),
             limit: parseInt(limit, 10),
             totalPages: Math.ceil(total / limit)
-          }},
-        
+          }
+        },
       });
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -322,7 +335,7 @@ module.exports = {
       }
 
       // Check if user is authorized to update this order
-      if (orderResult.rows[0].user_id !== req.user.id && req.user.role !== "admin") {
+      if (orderResult.rows[0].user_id !== req.user.id && req.user?.role !== "admin") {
         return res.status(403).json({
           success: false,
           message: "Bạn không có quyền cập nhật đơn hàng này",

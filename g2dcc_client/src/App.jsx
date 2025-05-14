@@ -1,9 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
-import UserLayout from "./layouts/UserLayout";
+import UserLayout from "./layouts/User/UserLayout";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import AdminLayout from "./layouts/AdminLayout";
+import AdminLayout from "./layouts/Admin/AdminLayout";
 import AdminHome from "./pages/Admin/AdminHome";
 import AdminUserLists from "./pages/Admin/AdminUserLists";
 import Profile from "./pages/Profile";
@@ -33,6 +33,8 @@ import OrderHistory from "./components/features/Order/OrderHistory";
 import AdminPromotionList from "./pages/Admin/AdminPromotionList";
 import Promotions from "./pages/Promotions";
 import AdminStaffList from "./pages/Admin/AdminStaffList";
+import Dashboard from "./components/features/Admin/Dashboard";
+import OrderStatistics from "./components/features/Admin/orders/OrderStatistics";
 
 function App() {
   return (
@@ -80,6 +82,8 @@ function App() {
               <Route path="banner-lists" element={<AdminBannerList />} />
               <Route path="orders" element={<AdminOrderList />} />
               <Route path="orders/:id" element={<OrderDetail />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="order-statistics" element={<OrderStatistics />} />
               <Route
                 path="orders/:id/shipment"
                 element={<AdminOrderShipment />}

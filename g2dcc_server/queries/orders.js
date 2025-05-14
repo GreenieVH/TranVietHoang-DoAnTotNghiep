@@ -190,13 +190,17 @@ module.exports = {
       LEFT JOIN users u ON o.user_id = u.id
       WHERE ($1::text IS NULL OR o.status = $1)
       AND ($2::text IS NULL OR o.payment_status = $2)
+      AND ($3::date IS NULL OR o.created_at >= $3)
+      AND ($4::date IS NULL OR o.created_at <= $4)
       ORDER BY o.created_at DESC
-      LIMIT $3 OFFSET $4
+      LIMIT $5 OFFSET $6
     `,
     getOrdersCount: `
-  SELECT COUNT(*) 
-  FROM orders o
-  WHERE ($1::text IS NULL OR o.status = $1)
-  AND ($2::text IS NULL OR o.payment_status = $2)
-`
+      SELECT COUNT(*) 
+      FROM orders o
+      WHERE ($1::text IS NULL OR o.status = $1)
+      AND ($2::text IS NULL OR o.payment_status = $2)
+      AND ($3::date IS NULL OR o.created_at >= $3)
+      AND ($4::date IS NULL OR o.created_at <= $4)
+    `
   };

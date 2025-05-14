@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useUser } from "../../context/UserContext";
@@ -20,20 +20,28 @@ import {
   Menu,
   Space,
   Drawer,
+  AutoComplete,
+  Spin,
 } from "antd";
 import user_default from "../../assets/Images/img_user_default.png";
 import logo from "../../assets/Images/logoxm.png"; 
-import CartBadge from "../common/CartBadge";
-import WishlistBadge from "../common/WishlistBadge";
+import CartBadge from "../../components/common/CartBadge";
+import WishlistBadge from "../../components/common/WishlistBadge";
 import { useAuth } from "../../context/AuthContext";
+import { userSearch } from "../../api/search";
+import debounce from "lodash/debounce";
+
 const UserHeader = () => {
   const { value, setValue } = useLocalStorage("theme", "light");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { logout } = useAuth();
-  const { user,refreshProfile } = useUser();
+  const { user, refreshProfile } = useUser();
   const [searchVisible, setSearchVisible] = useState(false);
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", value);
@@ -43,12 +51,72 @@ const UserHeader = () => {
     setValue(value === "light" ? "dark" : "light");
   };
 
+  // Xử lý tìm kiếm
+  const handleSearch = useCallback(
+    debounce(async (value) => {
+      if (!value) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        setSearchLoading(true);
+        const response = await userSearch(value);
+        if (response.success) {
+          const products = response.data.results.products || [];
+          console.log(products);
+          setSearchResults(
+            products.map((product) => ({
+              value: product.title,
+              label: (
+                <div 
+                  className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/products/${product.id}`);
+                    setSearchValue("");
+                    setSearchResults([]);
+                  }}
+                >
+                  <img
+                    src={product.img || ""}
+                    alt={product.title}
+                    className="w-10 h-10 object-cover rounded"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{product.title}</div>
+                    <div className="text-sm text-gray-500">
+                      {product.price?.toLocaleString("vi-VN")}đ
+                    </div>
+                  </div>
+                </div>
+              ),
+              product: product,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 500),
+    [navigate]
+  );
+
+  const onSearchSelect = (value, option) => {
+    if (option.product) {
+      navigate(`/products/${option.product.id}`);
+      setSearchValue("");
+      setSearchResults([]);
+    }
+  };
+
   const userMenu = (
     <Menu>
       <Menu.Item key="profile" onClick={() => navigate("/profile")}>
         Thông tin cá nhân
       </Menu.Item>
-      <Menu.Item key="orders" onClick={() => navigate("/orders")}>
+      <Menu.Item key="orders" onClick={() => navigate("/profile/orders")}>
         Đơn hàng của tôi
       </Menu.Item>
       <Menu.Item key="wishlist" onClick={() => navigate("/profile/wishlist")}>
@@ -133,11 +201,36 @@ const UserHeader = () => {
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-md mx-4">
-              <Input
-                placeholder="Tìm kiếm sản phẩm..."
-                prefix={<IoSearchOutline className="text-gray-400" />}
-                className="rounded-full"
-              />
+              <AutoComplete
+                value={searchValue}
+                options={searchResults}
+                onSelect={onSearchSelect}
+                onChange={(value) => {
+                  setSearchValue(value);
+                  handleSearch(value);
+                }}
+                notFoundContent={searchLoading ? <Spin size="small" /> : null}
+                className="w-full"
+                dropdownClassName="search-dropdown"
+                dropdownMatchSelectWidth={true}
+                open={searchValue.length > 0}
+                onDropdownVisibleChange={(open) => {
+                  if (!open) {
+                    setSearchResults([]);
+                  }
+                }}
+              >
+                <Input
+                  placeholder="Tìm kiếm sản phẩm..."
+                  prefix={<IoSearchOutline className="text-gray-400" />}
+                  className="rounded-full"
+                  allowClear
+                  onClear={() => {
+                    setSearchValue("");
+                    setSearchResults([]);
+                  }}
+                />
+              </AutoComplete>
             </div>
 
             {/* Right Actions */}
@@ -211,14 +304,43 @@ const UserHeader = () => {
         {searchVisible && (
           <div className="md:hidden p-2 bg-gray-50 dark:bg-gray-700">
             <div className="flex items-center">
-              <Input
-                placeholder="Tìm kiếm sản phẩm..."
-                prefix={<IoSearchOutline className="text-gray-400" />}
-                className="flex-1"
-              />
+              <AutoComplete
+                value={searchValue}
+                options={searchResults}
+                onSelect={onSearchSelect}
+                onChange={(value) => {
+                  setSearchValue(value);
+                  handleSearch(value);
+                }}
+                notFoundContent={searchLoading ? <Spin size="small" /> : null}
+                className="w-full"
+                dropdownClassName="search-dropdown"
+                dropdownMatchSelectWidth={true}
+                open={searchValue.length > 0}
+                onDropdownVisibleChange={(open) => {
+                  if (!open) {
+                    setSearchResults([]);
+                  }
+                }}
+              >
+                <Input
+                  placeholder="Tìm kiếm sản phẩm..."
+                  prefix={<IoSearchOutline className="text-gray-400" />}
+                  className="flex-1"
+                  allowClear
+                  onClear={() => {
+                    setSearchValue("");
+                    setSearchResults([]);
+                  }}
+                />
+              </AutoComplete>
               <button
                 className="ml-2 p-2"
-                onClick={() => setSearchVisible(false)}
+                onClick={() => {
+                  setSearchVisible(false);
+                  setSearchValue("");
+                  setSearchResults([]);
+                }}
               >
                 <IoCloseOutline className="w-5 h-5 text-gray-700 dark:text-gray-200" />
               </button>

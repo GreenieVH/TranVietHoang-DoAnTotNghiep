@@ -17,6 +17,7 @@ const addressesRoutes = require("./routes/addressesRoutes");
 const suppliersRoutes = require("./routes/suppliersRoutes");
 const brandsRoutes = require("./routes/brandsRoutes");
 const productVariantRoutes = require("./routes/productVariantRoutes");
+const searchRoutes = require("./routes/searchRoutes");
 
 const cookieParser = require("cookie-parser");
 const http = require("http");
@@ -63,6 +64,7 @@ app.use("/addresses", addressesRoutes);
 app.use("/suppliers", suppliersRoutes);
 app.use("/brands", brandsRoutes);
 app.use("/variants", productVariantRoutes);
+app.use("/search", searchRoutes);
 
 // Socket.io xử lý tin nhắn
 io.on("connection", (socket) => {

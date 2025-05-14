@@ -13,13 +13,12 @@ import {
   SettingOutlined
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../../context/UserContext";
+import { useUser } from "../../context/UserContext";
 
-function AdminNavbar() {
+function AdminNavbar({ collapsed }) {
   const navigate = useNavigate();
   const [openKeys, setOpenKeys] = React.useState([]);
   const { user } = useUser();
-
 
   const isAdmin = user?.role === 'admin';
 
@@ -47,6 +46,25 @@ function AdminNavbar() {
         },
       ],
     }] : []),
+    {
+      key: "statistical",
+      label: "Thống kê",
+      icon: <AppstoreOutlined />,
+      children: [
+        {
+          key: "order",
+          label: "Đơn hàng",
+          icon: <TagsOutlined />,
+          onClick: () => navigate("/admin/order-statistics"),
+        },
+        {
+          key: "user",
+          label: "Người dùng",
+          icon: <BarcodeOutlined />,
+          onClick: () => navigate("/admin/dashboard"),
+        }
+      ],
+    },
     {
       key: "catalog",
       label: "Quản lý sản phẩm",
@@ -117,13 +135,14 @@ function AdminNavbar() {
   ];
 
   return (
-    <div className="bg-white text-black w-1/5 max-w-[250px] min-h-screen shadow-md shadow-gray-600">
+    <div className={`bg-white text-black transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'} h-[calc(100vh-3.5rem)] shadow-md shadow-gray-600`}>
       <Menu
         mode="inline"
         items={items}
         openKeys={openKeys}
         onOpenChange={(keys) => setOpenKeys(keys)}
-        className="border-r-0"
+        className="border-r-0 h-full"
+        inlineCollapsed={collapsed}
       />
     </div>
   );
