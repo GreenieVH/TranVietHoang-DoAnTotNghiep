@@ -1,21 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/orders");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authenticateToken = require("../middlewares/authMiddleware");
 const adminMiddleware = require("../middlewares/adminMiddleware");
 
-// User routes
-router.post("/", authMiddleware, orderController.createOrder);
-router.post("/items", authMiddleware, orderController.addOrderItem);
-router.get("/user", authMiddleware, orderController.getUserOrders);
-router.get("/:id", authMiddleware, orderController.getOrderById);
+// Public routes (require auth)
+router.post("/", authenticateToken, orderController.createOrder);
+router.post("/items", authenticateToken, orderController.addOrderItem);
+router.get("/my-orders", authenticateToken, orderController.getUserOrders);
 
-// Admin routes
-router.get("/", authMiddleware, orderController.getOrders);
-router.patch("/:id/status", authMiddleware, orderController.updateOrderStatus);
-router.patch("/:id/shipment", authMiddleware, orderController.updateShipment);
-router.put("/:id/status", authMiddleware, adminMiddleware, orderController.updateOrderStatus);
-router.put("/:id/shipment", authMiddleware, adminMiddleware, orderController.updateShipment);
-router.post("/:id/confirm-delivery", authMiddleware, orderController.confirmDelivery);
+// Order logs routes (require auth)
+router.get("/logs", authenticateToken, orderController.getAllOrderLogs);
+router.get("/:orderId/logs", authenticateToken, orderController.getOrderLogs);
+
+// Order detail routes (require auth)
+router.get("/:id([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})", authenticateToken, orderController.getOrderById);
+
+// Admin routes (require auth)
+router.get("/", authenticateToken, orderController.getOrders);
+router.put("/:id/status", authenticateToken, orderController.updateOrderStatus);
+router.put("/:id/shipment", authenticateToken, orderController.updateShipment);
+router.put("/:id/confirm-delivery", authenticateToken, orderController.confirmDelivery);
 
 module.exports = router;

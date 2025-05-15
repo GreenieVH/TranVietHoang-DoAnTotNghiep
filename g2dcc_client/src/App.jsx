@@ -35,6 +35,8 @@ import Promotions from "./pages/Promotions";
 import AdminStaffList from "./pages/Admin/AdminStaffList";
 import Dashboard from "./components/features/Admin/Dashboard";
 import OrderStatistics from "./components/features/Admin/OrderStatistics";
+import AdminInventoryLogs from "./pages/Admin/AdminInventoryLogs";
+import AdminOrderLogs from "./pages/Admin/AdminOrderLogs";
 
 function App() {
   return (
@@ -84,6 +86,8 @@ function App() {
               <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="order-statistics" element={<OrderStatistics />} />
+              <Route path="inventory-logs" element={<AdminInventoryLogs />} />
+              <Route path="order-logs" element={<AdminOrderLogs />} />
               <Route
                 path="orders/:id/shipment"
                 element={<AdminOrderShipment />}

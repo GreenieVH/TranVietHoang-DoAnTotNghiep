@@ -1,6 +1,15 @@
 const db = require('../config/db');
 const orderQueries = require('../queries/orders');
+const orderLogQueries = require('../queries/orderLogs');
 const { v4: uuidv4 } = require('uuid');
+
+const ORDER_STATUS = {
+  pending: 'Chờ xử lý',
+  processing: 'Đang xử lý',
+  shipped: 'Đang giao hàng',
+  delivered: 'Đã giao hàng',
+  cancelled: 'Đã hủy'
+};
 
 module.exports = {
   createOrder: async (req, res) => {
@@ -159,12 +168,15 @@ module.exports = {
   },
 
   updateOrderStatus: async (req, res) => {
+    const client = await db.connect();
     try {
+      await client.query('BEGIN');
+
       const { id } = req.params;
       const { status } = req.body;
 
       // Check if order exists
-      const orderResult = await db.query(orderQueries.getOrderById, [id]);
+      const orderResult = await client.query(orderQueries.getOrderById, [id]);
 
       if (orderResult.rows.length === 0) {
         return res.status(404).json({
@@ -181,7 +193,18 @@ module.exports = {
         });
       }
 
-      const result = await db.query(orderQueries.updateOrderStatus, [status, id]);
+      // Update order status
+      const result = await client.query(orderQueries.updateOrderStatus, [status, id]);
+
+      // Create order log
+      await client.query(orderLogQueries.createOrderLog, [
+        id,
+        status,
+        `Cập nhật trạng thái đơn hàng thành: ${ORDER_STATUS[status] || status}`,
+        req.user.id
+      ]);
+
+      await client.query('COMMIT');
 
       res.json({
         success: true,
@@ -189,11 +212,14 @@ module.exports = {
         data: result.rows[0],
       });
     } catch (error) {
+      await client.query('ROLLBACK');
       console.error("Error updating order status:", error);
       res.status(500).json({
         success: false,
         message: "Lỗi hệ thống",
       });
+    } finally {
+      client.release();
     }
   },
 
@@ -320,12 +346,15 @@ module.exports = {
   },
 
   confirmDelivery: async (req, res) => {
+    const client = await db.connect();
     try {
+      await client.query('BEGIN');
+
       const { id } = req.params;
       const { status } = req.body;
 
       // Check if order exists
-      const orderResult = await db.query(orderQueries.getOrderById, [id]);
+      const orderResult = await client.query(orderQueries.getOrderById, [id]);
 
       if (orderResult.rows.length === 0) {
         return res.status(404).json({
@@ -342,52 +371,84 @@ module.exports = {
         });
       }
 
-      // Start transaction
-      await db.query('BEGIN');
+      // Update order status
+      const result = await client.query(orderQueries.updateOrderStatus, [status, id]);
 
-      try {
-        // Update order status
-        const result = await db.query(orderQueries.updateOrderStatus, [status, id]);
+      // Create order log
+      await client.query(orderLogQueries.createOrderLog, [
+        id,
+        status,
+        `Xác nhận giao hàng thành công`,
+        req.user.id
+      ]);
 
-        // If order is delivered, update product stock
-        if (status === 'delivered') {
-          // Get all items in the order
-          const orderItems = await db.query(
-            'SELECT product_id, variant_id, quantity FROM order_items WHERE order_id = $1',
-            [id]
-          );
+      // If order is delivered, update product stock
+      if (status === 'delivered') {
+        // Get all items in the order
+        const orderItems = await client.query(
+          'SELECT product_id, variant_id, quantity FROM order_items WHERE order_id = $1',
+          [id]
+        );
 
-          // Update stock for each item
-          for (const item of orderItems.rows) {
-            if (item.variant_id) {
-              // Update variant stock
-              await db.query(
-                'UPDATE product_variants SET stock = stock - $1 WHERE id = $2',
-                [item.quantity, item.variant_id]
-              );
-            } else {
-              // Update product stock
-              await db.query(
-                'UPDATE products SET stock = stock - $1 WHERE id = $2',
-                [item.quantity, item.product_id]
-              );
-            }
+        // Update stock for each item
+        for (const item of orderItems.rows) {
+          if (item.variant_id) {
+            // Update variant stock
+            await client.query(
+              'UPDATE product_variants SET stock = stock - $1 WHERE id = $2',
+              [item.quantity, item.variant_id]
+            );
+          } else {
+            // Update product stock
+            await client.query(
+              'UPDATE products SET stock = stock - $1 WHERE id = $2',
+              [item.quantity, item.product_id]
+            );
           }
         }
-
-        await db.query('COMMIT');
-
-        res.json({
-          success: true,
-          message: "Xác nhận giao hàng thành công",
-          data: result.rows[0],
-        });
-      } catch (error) {
-        await db.query('ROLLBACK');
-        throw error;
       }
+
+      await client.query('COMMIT');
+
+      res.json({
+        success: true,
+        message: "Xác nhận giao hàng thành công",
+        data: result.rows[0],
+      });
     } catch (error) {
+      await client.query('ROLLBACK');
       console.error("Error confirming delivery:", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống",
+      });
+    } finally {
+      client.release();
+    }
+  },
+
+  // Lấy lịch sử log của một order
+  getOrderLogs: async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const result = await db.query(orderLogQueries.getOrderLogs, [orderId]);
+      res.json({ success: true, data: result.rows });
+    } catch (error) {
+      console.error("Error fetching order logs:", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống",
+      });
+    }
+  },
+
+  // Lấy tất cả logs của tất cả orders
+  getAllOrderLogs: async (req, res) => {
+    try {
+      const result = await db.query(orderLogQueries.getAllOrderLogs);
+      res.json({ success: true, data: result.rows });
+    } catch (error) {
+      console.error("Error fetching all order logs:", error);
       res.status(500).json({
         success: false,
         message: "Lỗi hệ thống",

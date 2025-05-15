@@ -24,6 +24,7 @@ import {
 import { formatDate } from "../../utils/format";
 import * as XLSX from 'xlsx';
 import useUsers from "../../hooks/useUsers";
+import { updatedUser } from "../../api/user";
 
 const { Option } = Select;
 
@@ -50,7 +51,7 @@ const AdminStaffList = () => {
     const filtered = users.filter((item) => {
       const searchValue = value.toLowerCase().trim();
       return (
-        (item.user_name && item.user_name.toLowerCase().includes(searchValue)) ||
+        (item.username && item.username.toLowerCase().includes(searchValue)) ||
         (item.email && item.email.toLowerCase().includes(searchValue)) ||
         (item.phone && item.phone.includes(value))
       );
@@ -64,7 +65,7 @@ const AdminStaffList = () => {
       // Prepare data for export
       const exportData = filteredStaff.map((item) => ({
         ID: item.id,
-        "Họ và tên": item.user_name,
+        "Họ và tên": item.username,
         Email: item.email,
         "Số điện thoại": item.phone,
         "Ngày tạo": formatDate(item.created_at),
@@ -92,24 +93,10 @@ const AdminStaffList = () => {
     try {
       if (editingStaff) {
         // Update existing staff
-        await fetch(`/api/users/${editingStaff.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        });
+        await updatedUser(editingStaff.id, values);
         message.success("Cập nhật nhân viên thành công");
       } else {
-        // Create new staff
-        await fetch("/api/users", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ...values, role: "staff" }),
-        });
-        message.success("Thêm nhân viên mới thành công");
+        message.success("Chức năng thêm nhân viên đang phát triển");
       }
       setIsModalVisible(false);
       form.resetFields();
@@ -149,8 +136,8 @@ const AdminStaffList = () => {
     },
     {
       title: "Họ và tên",
-      dataIndex: "user_name",
-      key: "user_name",
+      dataIndex: "username",
+      key: "username",
       render: (text, record) => (
         <Space>
           <span>{text}</span>
@@ -207,7 +194,7 @@ const AdminStaffList = () => {
   }
 
   return (
-    <div className="p-6 w-full">
+    <div className="p-6 w-full bg-white rounded-lg shadow-md">
       <Card
         title="Danh sách nhân viên"
         extra={
@@ -269,7 +256,7 @@ const AdminStaffList = () => {
           onFinish={handleSubmit}
         >
           <Form.Item
-            name="full_name"
+            name="username"
             label="Họ và tên"
             rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
           >

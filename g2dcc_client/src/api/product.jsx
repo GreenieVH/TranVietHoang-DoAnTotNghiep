@@ -1,4 +1,5 @@
 import API from '@/config/api';
+import APIAUTH from '../config/apiAuth';
 
 export const getProducts = async (params = {}) => {
   try {
@@ -16,7 +17,7 @@ export const getProducts = async (params = {}) => {
 
 export const createProduct = async (data) => {
   try {
-    const response = await API.post("/products", data, {
+    const response = await APIAUTH.post("/products", data, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data.data;
@@ -28,7 +29,7 @@ export const createProduct = async (data) => {
 
 export const updateProduct = async (id, data) => {
   try {
-    const response = await API.put(`/products/${id}`, data, {
+    const response = await APIAUTH.put(`/products/${id}`, data, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data.data;
@@ -40,7 +41,7 @@ export const updateProduct = async (id, data) => {
 
 export const deleteProduct = async (id) => {
   try {
-    const response = await API.delete(`/products/${id}`);
+    const response = await APIAUTH.delete(`/products/${id}`);
     return response.data.data;
   } catch (error) {
     console.error("Error deleting product:", error);
@@ -70,7 +71,7 @@ export const getVariantById = async (productId) => {
 
 export const createVariant = async (productId, data) => {
   try {
-    const response = await API.post(`/products/${productId}/variants`, data);
+    const response = await APIAUTH.post(`/products/${productId}/variants`, data);
     return response.data.data;
   } catch (error) {
     console.error("Error creating variant:", error);
@@ -80,7 +81,7 @@ export const createVariant = async (productId, data) => {
 
 export const deleteVariant = async (variantId) => {
   try {
-    const response = await API.delete(`/variants/${variantId}`);
+    const response = await APIAUTH.delete(`/variants/${variantId}`);
     return response.data.data;
   } catch (error) {
     console.error("Error deleting variant:", error);
@@ -90,7 +91,7 @@ export const deleteVariant = async (variantId) => {
 
 export const updateVariant = async (variantId, data) => {
   try {
-    const response = await API.put(`/variants/${variantId}`, data);
+    const response = await APIAUTH.put(`/variants/${variantId}`, data);
     return response.data.data;
   } catch (error) {
     console.error("Error updating variant:", error);
@@ -104,6 +105,30 @@ export const getProductReviews = async (productId, params = {}) => {
     return response.data.data;
   } catch (error) {
     console.error("Error fetching product reviews:", error);
+    throw error;
+  }
+};
+
+// Inventory APIs
+export const getProductInventoryHistory = async (productId = null) => {
+  try {
+    const url = productId 
+      ? `/products/${productId}/inventory-history`
+      : '/products/inventory-history';
+    const response = await APIAUTH.get(url);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching product inventory history:", error);
+    throw error;
+  }
+};
+
+export const getVariantInventoryHistory = async (productId, variantId) => {
+  try {
+    const response = await APIAUTH.get(`/products/${productId}/variants/${variantId}/inventory-history`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching variant inventory history:", error);
     throw error;
   }
 };

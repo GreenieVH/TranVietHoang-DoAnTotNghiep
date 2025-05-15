@@ -158,7 +158,7 @@ const OrderStatistics = () => {
     : 0;
 
   return (
-    <div className="p-6 w-full">
+    <div className="p-6 w-full bg-white rounded-lg shadow-md">
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Card>
           <Space className="mb-4">

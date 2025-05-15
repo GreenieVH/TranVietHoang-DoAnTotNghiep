@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const productQueries = require("../queries/products");
+const inventoryQueries = require("../queries/inventory");
 const { v4: uuidv4 } = require("uuid");
 const slugify = require("slugify");
 const { uploadToCloudinary, cloudinary } = require("../utils/cloudinary");
@@ -195,7 +196,10 @@ module.exports = {
 
   // Cập nhật sản phẩm
   updateProduct: async (req, res) => {
+    const client = await db.connect();
     try {
+      await client.query('BEGIN');
+      
       const { id } = req.params;
       const {
         name = "",
@@ -214,9 +218,10 @@ module.exports = {
           message: "Product name is required and must be a string",
         });
       }
+
       // Validate brand_id
       if (brandId) {
-        const brandCheck = await db.query(
+        const brandCheck = await client.query(
           "SELECT 1 FROM brands WHERE id = $1 AND is_active = true",
           [brandId]
         );
@@ -229,30 +234,21 @@ module.exports = {
         }
       }
 
-      // Xử lý ảnh nếu có
-      if (req.file) {
-        // Xóa ảnh cũ (nếu cần)
-        await db.query(
-          `DELETE FROM product_images 
-         WHERE product_id = $1 AND is_primary = true`,
-          [id]
-        );
+      // Lấy số lượng tồn kho hiện tại
+      const currentStock = await client.query(
+        "SELECT stock FROM products WHERE id = $1",
+        [id]
+      );
 
-        // Upload và thêm ảnh mới
-        const imgUrl = await uploadToCloudinary(
-          req.file.buffer,
-          "product_images"
-        );
-
-        await db.query(productQueries.addProductImage, [
-          id,
-          null,
-          imgUrl,
-          true,
-          `Ảnh chính của ${name}`,
-          1,
-        ]);
+      if (currentStock.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Product not found",
+        });
       }
+
+      const oldStock = currentStock.rows[0].stock;
+      const stockChange = stock - oldStock;
 
       // Tạo slug từ tên sản phẩm
       const slug = name
@@ -260,7 +256,8 @@ module.exports = {
         .replace(/ /g, "-")
         .replace(/[^\w-]+/g, "");
 
-      const result = await db.query(productQueries.updateProduct, [
+      // Cập nhật sản phẩm
+      const result = await client.query(productQueries.updateProduct, [
         name,
         slug,
         categoryId,
@@ -272,16 +269,53 @@ module.exports = {
         id,
       ]);
 
-      if (result.rows.length === 0) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Product not found" });
+      // Tạo log thay đổi tồn kho nếu có thay đổi
+      if (stockChange !== 0) {
+        await client.query(inventoryQueries.createInventoryLog, [
+          id,
+          null, // variant_id
+          stockChange,
+          stock,
+          'ADJUSTMENT',
+          id,
+          `Điều chỉnh tồn kho sản phẩm ${name}`,
+          req.user?.id
+        ]);
       }
 
+      // Xử lý ảnh nếu có
+      if (req.file) {
+        // Xóa ảnh cũ (nếu cần)
+        await client.query(
+          `DELETE FROM product_images 
+         WHERE product_id = $1 AND is_primary = true`,
+          [id]
+        );
+
+        // Upload và thêm ảnh mới
+        const imgUrl = await uploadToCloudinary(
+          req.file.buffer,
+          "product_images"
+        );
+
+        await client.query(productQueries.addProductImage, [
+          id,
+          null,
+          imgUrl,
+          true,
+          `Ảnh chính của ${name}`,
+          1,
+        ]);
+      }
+
+      await client.query('COMMIT');
       res.json({ success: true, data: result.rows[0] });
     } catch (err) {
+      await client.query('ROLLBACK');
       console.error(err);
       res.status(500).json({ success: false, message: "Server error" });
+    } finally {
+      client.release();
     }
   },
 
@@ -306,7 +340,10 @@ module.exports = {
 
   // Tạo biến thể sản phẩm
   createVariant: async (req, res) => {
+    const client = await db.connect();
     try {
+      await client.query('BEGIN');
+
       const { productId } = req.params;
       const {
         color,
@@ -320,7 +357,7 @@ module.exports = {
         dimensions,
       } = req.body;
 
-      const result = await db.query(productQueries.createProductVariant, [
+      const result = await client.query(productQueries.createProductVariant, [
         productId,
         color,
         batteryCapacity,
@@ -333,10 +370,26 @@ module.exports = {
         dimensions,
       ]);
 
+      // Tạo log thay đổi tồn kho cho biến thể mới
+      await client.query(inventoryQueries.createInventoryLog, [
+        productId,
+        result.rows[0].id,
+        stock,
+        stock,
+        'IMPORT',
+        null,
+        `Tạo biến thể mới: ${color}`,
+        req.user.id
+      ]);
+
+      await client.query('COMMIT');
       res.status(201).json({ success: true, data: result.rows[0] });
     } catch (err) {
+      await client.query('ROLLBACK');
       console.error(err);
       res.status(500).json({ success: false, message: "Server error" });
+    } finally {
+      client.release();
     }
   },
 
@@ -365,6 +418,51 @@ module.exports = {
       ]);
 
       res.status(201).json({ success: true, data: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  },
+
+  // Lấy lịch sử tồn kho
+  getInventoryHistory: async (req, res) => {
+    try {
+      const { productId, variantId } = req.params;
+      let result;
+
+      if (variantId) {
+        result = await db.query(inventoryQueries.getVariantInventoryHistory, [variantId]);
+      } else {
+        result = await db.query(inventoryQueries.getProductInventoryHistory, [productId]);
+      }
+
+      // Thêm thông tin người dùng hiện tại nếu chưa có
+      const logs = result.rows.map(log => ({
+        ...log,
+        created_by: log.created_by || req.user?.id,
+        created_by_name: log.created_by_name || req.user?.username
+      }));
+
+      res.json({ success: true, data: logs });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  },
+
+  // Lấy tất cả lịch sử tồn kho
+  getAllInventoryHistory: async (req, res) => {
+    try {
+      const result = await db.query(inventoryQueries.getAllInventoryHistory);
+      
+      // Thêm thông tin người dùng hiện tại nếu chưa có
+      const logs = result.rows.map(log => ({
+        ...log,
+        created_by: log.created_by || req.user?.id,
+        created_by_name: log.created_by_name || req.user?.username
+      }));
+
+      res.json({ success: true, data: logs });
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: "Server error" });

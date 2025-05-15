@@ -10,7 +10,11 @@ import {
   BarcodeOutlined,
   PictureOutlined,
   FireOutlined,
-  SettingOutlined
+  SettingOutlined,
+  FileTextOutlined,
+  HistoryOutlined,
+  ShoppingOutlined,
+  FileImageOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
@@ -20,7 +24,7 @@ function AdminNavbar({ collapsed }) {
   const [openKeys, setOpenKeys] = React.useState([]);
   const { user } = useUser();
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   const items = [
     {
@@ -29,23 +33,27 @@ function AdminNavbar({ collapsed }) {
       icon: <HomeOutlined />,
       onClick: () => navigate("/admin"),
     },
-    ...(isAdmin ? [{
-      key: "user-management",
-      label: "Quản lý người dùng",
-      icon: <TeamOutlined />,
-      children: [
-        {
-          key: "user-list",
-          label: "Danh sách người dùng",
-          onClick: () => navigate("/admin/user-lists"),
-        },
-        {
-          key: "staff-list",
-          label: "Danh sách nhân viên",
-          onClick: () => navigate("/admin/staff-lists"),
-        },
-      ],
-    }] : []),
+    ...(isAdmin
+      ? [
+          {
+            key: "user-management",
+            label: "Quản lý người dùng",
+            icon: <TeamOutlined />,
+            children: [
+              {
+                key: "user-list",
+                label: "Danh sách người dùng",
+                onClick: () => navigate("/admin/user-lists"),
+              },
+              {
+                key: "staff-list",
+                label: "Danh sách nhân viên",
+                onClick: () => navigate("/admin/staff-lists"),
+              },
+            ],
+          },
+        ]
+      : []),
     {
       key: "statistical",
       label: "Thống kê",
@@ -62,7 +70,7 @@ function AdminNavbar({ collapsed }) {
           label: "Người dùng",
           icon: <BarcodeOutlined />,
           onClick: () => navigate("/admin/dashboard"),
-        }
+        },
       ],
     },
     {
@@ -98,6 +106,7 @@ function AdminNavbar({ collapsed }) {
         {
           key: "orders",
           label: "Đơn hàng",
+          icon: <FileTextOutlined />,
           onClick: () => navigate("/admin/orders"),
         },
         {
@@ -116,7 +125,27 @@ function AdminNavbar({ collapsed }) {
         {
           key: "banner",
           label: "Quản lý banner",
+          icon: <FileImageOutlined />,
           onClick: () => navigate("/admin/banner-lists"),
+        },
+      ],
+    },
+    {
+      key: "logs",
+      label: "Nhật ký",
+      icon: <BarcodeOutlined />,
+      children: [
+        {
+          key: "inventory",
+          label: "Nhật ký tồn kho",
+          icon: <HistoryOutlined />,
+          onClick: () => navigate("/admin/inventory-logs"),
+        },
+        {
+          key: "order",
+          label: "Nhật ký đơn hàng",
+          icon: <ShoppingOutlined />,
+          onClick: () => navigate("/admin/order-logs"),
         },
       ],
     },
@@ -135,7 +164,11 @@ function AdminNavbar({ collapsed }) {
   ];
 
   return (
-    <div className={`bg-white text-black transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'} h-vh shadow-md shadow-gray-600`}>
+    <div
+      className={`bg-white text-black transition-all duration-300 ${
+        collapsed ? "w-20" : "w-64"
+      } h-vh shadow-md shadow-gray-600`}
+    >
       <Menu
         mode="inline"
         items={items}

@@ -45,7 +45,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div className="p-6 w-full bg-white rounded-lg shadow-md">
       <Row gutter={[16, 16]}>
         <Col xs={24} md={12}>
           <Card
