@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { formatCurrency } from '../../../../utils/format';
-import { getOrders, updateOrderStatus } from '../../../../api/orders';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { formatCurrency } from '../../utils/format';
+import { getOrders, updateOrderStatus } from '../../api/orders';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { useToast } from '../../../../context/ToastContext';
+import { useToast } from '../../context/ToastContext';
 import { 
   Card, 
   Table, 
@@ -43,6 +43,7 @@ const AdminOrderList = () => {
   });
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const location = useLocation();
   const showToast = useToast();
   const filterTimeoutRef = useRef(null);
 
@@ -77,6 +78,17 @@ const AdminOrderList = () => {
     fetchOrders(pagination.current);
   }, [pagination.current, filters, fetchOrders]);
 
+  // Lấy tham số tìm kiếm từ URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get("search");
+    
+    if (searchQuery) {
+      form.setFieldsValue({ status: searchQuery });
+      setFilters(prev => ({ ...prev, status: searchQuery }));
+    }
+  }, [location.search, form]);
+
   const handleFilterChange = useCallback((changedValues) => {
     // Clear previous timeout
     if (filterTimeoutRef.current) {
@@ -99,8 +111,15 @@ const AdminOrderList = () => {
       
       setFilters(newFilters);
       setPagination(prev => ({ ...prev, current: 1 }));
-    }, 500); // Debounce 500ms
-  }, [filters]);
+
+      // Update URL with search parameters
+      const searchParams = new URLSearchParams();
+      if (newFilters.status) {
+        searchParams.set('search', newFilters.status);
+      }
+      navigate(`/admin/orders?${searchParams.toString()}`, { replace: true });
+    }, 500);
+  }, [filters, navigate]);
 
   const handleTableChange = useCallback((newPagination) => {
     setPagination(newPagination);
@@ -211,7 +230,7 @@ const AdminOrderList = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full p-6 bg-white rounded-lg shadow-md">
       <Card 
         title="Quản lý đơn hàng"
         extra={
@@ -259,6 +278,16 @@ const AdminOrderList = () => {
           loading={loading}
           pagination={pagination}
           onChange={handleTableChange}
+          onRow={(record) => {
+            const isHighlighted = 
+              (form.getFieldValue('status') && record.status === form.getFieldValue('status')) ||
+              (form.getFieldValue('dateRange') && 
+                new Date(record.created_at) >= form.getFieldValue('dateRange')[0] &&
+                new Date(record.created_at) <= form.getFieldValue('dateRange')[1]);
+            return {
+              className: isHighlighted ? "bg-yellow-400" : "",
+            };
+          }}
         />
       </Card>
     </div>

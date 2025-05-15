@@ -8,5 +8,13 @@ const upload = multer({ storage });
 const uploadMiddleware = upload.single("img");
 const uploadImageMiddleware = upload.single("image");
 const uploadBannerMiddleware = upload.single("bannerImage");
+const uploadThreadImageMiddleware = upload.single("img");
+const uploadMessageImageMiddleware = upload.single("img");
 
-module.exports = { uploadMiddleware, uploadImageMiddleware, uploadBannerMiddleware };
+module.exports = { 
+  uploadMiddleware, 
+  uploadImageMiddleware, 
+  uploadBannerMiddleware,
+  uploadThreadImageMiddleware,
+  uploadMessageImageMiddleware 
+};

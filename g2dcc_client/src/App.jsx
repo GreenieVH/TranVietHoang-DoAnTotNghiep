@@ -26,15 +26,15 @@ import OrderList from "./pages/OrderList";
 import OrderDetail from "./components/features/Order/OrderDetail";
 import OrderForm from "./components/features/Order/OrderForm";
 // Import admin order components
-import AdminOrderList from "./components/features/Admin/orders/AdminOrderList";
-import AdminOrderShipment from "./components/features/Admin/orders/AdminOrderShipment";
+import AdminOrderList from "./pages/Admin/AdminOrderList";
+import AdminOrderShipment from "./components/features/Admin/AdminOrderShipment";
 import AdminBannerList from "./pages/Admin/AdminBannerList";
 import OrderHistory from "./components/features/Order/OrderHistory";
 import AdminPromotionList from "./pages/Admin/AdminPromotionList";
 import Promotions from "./pages/Promotions";
 import AdminStaffList from "./pages/Admin/AdminStaffList";
 import Dashboard from "./components/features/Admin/Dashboard";
-import OrderStatistics from "./components/features/Admin/orders/OrderStatistics";
+import OrderStatistics from "./components/features/Admin/OrderStatistics";
 
 function App() {
   return (

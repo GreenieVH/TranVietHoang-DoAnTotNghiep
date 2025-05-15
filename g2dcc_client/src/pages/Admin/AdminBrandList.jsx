@@ -9,6 +9,7 @@ import {
 import BrandForm from "@/components/features/Admin/BrandForm";
 import { createBrand, deleteBrand, getBrands, updateBrand } from "../../api/brand";
 import { useToast } from "../../context/ToastContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AdminBrandList = () => {
     const showToast = useToast();
@@ -22,6 +23,28 @@ const AdminBrandList = () => {
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentBrand, setCurrentBrand] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Lấy tham số tìm kiếm từ URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get("search");
+    
+    if (searchQuery) {
+      setSearchText(searchQuery);
+    }
+  }, [location.search]);
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchText(value);
+    if (value) {
+      navigate(`/admin/brands?search=${encodeURIComponent(value)}`, { replace: true });
+    } else {
+      navigate("/admin/brands", { replace: true });
+    }
+  };
 
   const columns = [
     {
@@ -109,10 +132,6 @@ const AdminBrandList = () => {
     });
   };
 
-  const handleSearch = (e) => {
-    setSearchText(e.target.value);
-  };
-
   const handleAdd = () => {
     setCurrentBrand(null);
     setIsModalVisible(true);
@@ -181,6 +200,12 @@ const AdminBrandList = () => {
         loading={loading}
         pagination={pagination}
         onChange={handleTableChange}
+        onRow={(record) => {
+          const isHighlighted = searchText && record.name.toLowerCase().includes(searchText.toLowerCase());
+          return {
+            className: isHighlighted ? "bg-yellow-400" : "",
+          };
+        }}
       />
 
       <BrandForm

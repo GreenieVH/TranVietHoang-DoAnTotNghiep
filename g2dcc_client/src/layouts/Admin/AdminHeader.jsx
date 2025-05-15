@@ -3,8 +3,9 @@ import { CgMenuLeft, CgMenu } from "react-icons/cg";
 import { PiMagnifyingGlassBold } from "react-icons/pi";
 import { FaRegBell } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
+import { BsBox, BsPerson, BsCart, BsTag } from "react-icons/bs";
 import { useUser } from "@/context/UserContext";
-import { Avatar, Dropdown, Menu, Input, AutoComplete, Spin } from "antd";
+import { Avatar, Dropdown, Menu, Input, AutoComplete, Spin, Divider } from "antd";
 import user_default from "@/assets/Images/img_user_default.png";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -31,36 +32,156 @@ function AdminHeader({ onMenuCollapse, collapsed }) {
         setSearchLoading(true);
         const response = await adminSearch(value);
         if (response.success) {
-          const products = response.data.results.products || [];
-          console.log(products);
-          setSearchResults(
-            products.map((product) => ({
-              value: product.title,
+          const results = response.data.results;
+          const groupedResults = [];
+
+          // Thêm sản phẩm
+          if (results.products?.length > 0) {
+            groupedResults.push({
               label: (
-                <div 
-                  className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                  onClick={() => {
-                    navigate(`/admin/products/${product.id}`);
-                    setSearchValue("");
-                    setSearchResults([]);
-                  }}
-                >
-                  <img
-                    src={product.img || ""}
-                    alt={product.title}
-                    className="w-10 h-10 object-cover rounded"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{product.title}</div>
-                    <div className="text-sm text-gray-500">
-                      {product.price?.toLocaleString("vi-VN")}đ
-                    </div>
-                  </div>
+                <div className="font-semibold text-gray-500 px-2 py-1 flex items-center gap-2">
+                  <BsBox className="w-4 h-4" />
+                  Sản phẩm
                 </div>
               ),
-              product: product,
-            }))
-          );
+              options: results.products.map((product) => ({
+                value: product.title,
+                label: (
+                  <div 
+                    className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    onClick={() => {
+                      navigate(`/admin/products?search=${encodeURIComponent(product.title)}`);
+                      setSearchValue("");
+                      setSearchResults([]);
+                    }}
+                  >
+                    <img
+                      src={product.img || ""}
+                      alt={product.title}
+                      className="w-10 h-10 object-cover rounded"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{product.title}</div>
+                      <div className="text-sm text-gray-500">
+                        {product.price?.toLocaleString("vi-VN")}đ
+                      </div>
+                    </div>
+                  </div>
+                ),
+                product: product,
+              })),
+            });
+          }
+
+          // Thêm người dùng
+          if (results.users?.length > 0) {
+            groupedResults.push({
+              label: (
+                <div className="font-semibold text-gray-500 px-2 py-1 flex items-center gap-2">
+                  <BsPerson className="w-4 h-4" />
+                  Người dùng
+                </div>
+              ),
+              options: results.users.map((user) => ({
+                value: user.title,
+                label: (
+                  <div 
+                    className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    onClick={() => {
+                      navigate(`/admin/user-lists?search=${encodeURIComponent(user?.title)}`);
+                      setSearchValue("");
+                      setSearchResults([]);
+                    }}
+                  >
+                    <Avatar
+                      src={user.img || user_default}
+                      size="small"
+                      className="!w-10 !h-10"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{user.title}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                  </div>
+                ),
+                user: user,
+              })),
+            });
+          }
+
+          // Thêm đơn hàng
+          if (results.orders?.length > 0) {
+            groupedResults.push({
+              label: (
+                <div className="font-semibold text-gray-500 px-2 py-1 flex items-center gap-2">
+                  <BsCart className="w-4 h-4" />
+                  Đơn hàng
+                </div>
+              ),
+              options: results.orders.map((order) => ({
+                value: `Đơn hàng #${order.id}`,
+                label: (
+                  <div 
+                    className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    onClick={() => {
+                      navigate(`/admin/orders?search=${encodeURIComponent(order.status)}`);
+                      setSearchValue("");
+                      setSearchResults([]);
+                    }}
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+                      <BsCart className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">Đơn hàng #{order.id}</div>
+                      <div className="text-sm text-gray-500">
+                        {order.total?.toLocaleString("vi-VN")}đ - {order.status}
+                      </div>
+                    </div>
+                  </div>
+                ),
+                order: order,
+              })),
+            });
+          }
+
+          // Thêm danh mục
+          if (results.categories?.length > 0) {
+            groupedResults.push({
+              label: (
+                <div className="font-semibold text-gray-500 px-2 py-1 flex items-center gap-2">
+                  <BsTag className="w-4 h-4" />
+                  Danh mục
+                </div>
+              ),
+              options: results.categories.map((category) => ({
+                value: category.name,
+                label: (
+                  <div 
+                    className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    onClick={() => {
+                      navigate(`/admin/category-lists?search=${encodeURIComponent(category.title)}`);
+                      setSearchValue("");
+                      setSearchResults([]);
+                    }}
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+                      <BsTag className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{category.title}</div>
+                      <div className="text-sm text-gray-500">
+                        {category.productCount || 0} sản phẩm
+                      </div>
+                    </div>
+                  </div>
+                ),
+                category: category,
+              })),
+            });
+          }
+
+          setSearchResults(groupedResults);
         }
       } catch (error) {
         console.error("Search error:", error);
@@ -73,10 +194,16 @@ function AdminHeader({ onMenuCollapse, collapsed }) {
 
   const onSearchSelect = (value, option) => {
     if (option.product) {
-      navigate(`/admin/products/${option.product.id}`);
-      setSearchValue("");
-      setSearchResults([]);
+      navigate(`/admin/product-lists?search=${encodeURIComponent(option.product.title)}`);
+    } else if (option.user) {
+      navigate(`/admin/user-lists?search=${encodeURIComponent(option.user.title)}`);
+    } else if (option.order) {
+      navigate(`/admin/orders?search=${encodeURIComponent(option.order.status)}`);
+    } else if (option.category) {
+      navigate(`/admin/category-lists?search=${encodeURIComponent(option.category.title)}`);
     }
+    setSearchValue("");
+    setSearchResults([]);
   };
 
   const handleLogout = async () => {
@@ -130,7 +257,7 @@ function AdminHeader({ onMenuCollapse, collapsed }) {
             }}
           >
             <Input
-              placeholder="Tìm kiếm sản phẩm..."
+              placeholder="Tìm kiếm..."
               prefix={<PiMagnifyingGlassBold className="text-gray-400" />}
               className="rounded-full"
               allowClear

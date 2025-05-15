@@ -13,6 +13,7 @@ cloudinary.config({
   api_secret: api_secret,
 });
 
+// Upload buffer (giữ nguyên cho các chức năng khác)
 async function uploadToCloudinary(buffer, folder) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -26,4 +27,22 @@ async function uploadToCloudinary(buffer, folder) {
   });
 }
 
-module.exports = { uploadToCloudinary, cloudinary };
+// Upload base64 (dùng riêng cho forum messages)
+async function uploadBase64ToCloudinary(base64String, folder) {
+  try {
+    const result = await cloudinary.uploader.upload(base64String, {
+      folder: folder,
+      resource_type: "auto"
+    });
+    return result;
+  } catch (error) {
+    console.error("Error uploading base64 to Cloudinary:", error);
+    throw error;
+  }
+}
+
+module.exports = { 
+  uploadToCloudinary, 
+  uploadBase64ToCloudinary,
+  cloudinary 
+};

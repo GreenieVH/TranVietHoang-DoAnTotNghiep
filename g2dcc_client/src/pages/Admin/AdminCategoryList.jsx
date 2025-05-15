@@ -5,6 +5,7 @@ import { useCategories } from "../../hooks/useCategorys";
 import { useToast } from "../../context/ToastContext";
 import CategoryForm from "../../components/features/Admin/CategoryForm"; // form dùng chung cho thêm + sửa
 import { deleteCategory } from "../../api/category";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -36,6 +37,18 @@ function AdminCategoryList() {
   const [pageSize, setPageSize] = useState(5);
   const [editingCategory, setEditingCategory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Lấy tham số tìm kiếm từ URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get("search");
+    
+    if (searchQuery) {
+      setSearchText(searchQuery);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     fetchCategories();
@@ -48,6 +61,15 @@ function AdminCategoryList() {
       )
     );
   }, [searchText, categories]);
+
+  const handleSearch = (value) => {
+    setSearchText(value);
+    if (value) {
+      navigate(`/admin/category-lists?search=${encodeURIComponent(value)}`, { replace: true });
+    } else {
+      navigate("/admin/category-lists", { replace: true });
+    }
+  };
 
   const treeData = useMemo(
     () => buildCategoryTree(filteredData),
@@ -143,9 +165,10 @@ function AdminCategoryList() {
       <div className="flex justify-between items-center mb-4">
         <Search
           placeholder="Tìm kiếm danh mục..."
-          onChange={(e) => setSearchText(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           style={{ width: 300 }}
           allowClear
+          value={searchText}
         />
         <Space>
           <Select value={pageSize} onChange={(val) => setPageSize(val)}>
@@ -175,6 +198,12 @@ function AdminCategoryList() {
         loading={loading}
         pagination={{ pageSize }}
         expandable={{ childrenColumnName: "children" }}
+        onRow={(record) => {
+          const isHighlighted = searchText && record.name.toLowerCase().includes(searchText.toLowerCase());
+          return {
+            className: isHighlighted ? "bg-yellow-400" : "",
+          };
+        }}
       />
 
       {isModalOpen && (

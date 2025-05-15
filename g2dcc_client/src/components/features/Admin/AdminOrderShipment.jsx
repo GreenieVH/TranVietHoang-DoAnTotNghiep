@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { formatCurrency } from '../../../../utils/format';
-import { getOrderById, updateShipment } from '../../../../api/orders';
+import { formatCurrency } from '@/utils/format';
+import { getOrderById, updateShipment } from '@/api/orders';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { useToast } from '../../../../context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 import { 
   Card, 
   Form, 
@@ -20,7 +20,7 @@ import {
   SaveOutlined,
   TruckOutlined
 } from '@ant-design/icons';
-import LoadingPage from '../../../common/LoadingPage';
+import LoadingPage from '../../common/LoadingPage';
 
 const { Option } = Select;
 

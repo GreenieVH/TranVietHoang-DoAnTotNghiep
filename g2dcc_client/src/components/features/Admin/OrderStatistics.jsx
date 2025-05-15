@@ -4,9 +4,9 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { getOrders } from '../../../../api/orders';
-import { formatCurrency } from '../../../../utils/format';
-import { useToast } from '../../../../context/ToastContext';
+import { getOrders } from '@/api/orders';
+import { formatCurrency } from '@/utils/format';
+import { useToast } from '@/context/ToastContext';
 import dayjs from '@/utils/dayjs-adapter';
 
 const { RangePicker } = DatePicker;

@@ -9,7 +9,16 @@ const getProfile = async (req, res) => {
     const user = await pool.query(
       `
       SELECT 
-        users.*, 
+        users.id,
+        username,
+        email,
+        created_at,
+        updated_at,
+        img,
+        phone,
+        address,
+        sex,
+        active,
         roles.name AS role_name
       FROM users
       JOIN roles ON users.role_id = roles.id
@@ -64,16 +73,10 @@ const updateUser = async (req, res) => {
     // upload ảnh nếu có
     let imgUrl = null;
     if (req.file) {
-      imgUrl = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "user_avatars" },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result.secure_url);
-          }
-        );
-        stream.end(req.file.buffer);
-      });
+      imgUrl = await cloudinary.uploadToCloudinary(
+        req.file.buffer,
+        "user_avatars"
+      );
     }
     if (username !== undefined) {
       fields.push(`username = $${index}`);

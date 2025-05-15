@@ -6,26 +6,29 @@ const ThreadContext = createContext();
 
 export const ThreadProvider = ({ children }) => {
   const [threads, setThreads] = useState(null);
-  const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedThread, setSelectedThread] = useState(null);
 
   useEffect(() => {
     fetchAllThreads();
   }, []);
-  useEffect(() => {
-    fetchAllMessages();
-  }, []);
+
   useEffect(() => {
     if (selectedThread) {
       fetchAllMessages(selectedThread.id);
-      socket.emit("joinThread", selectedThread.id); // Tham gia vào thread khi chọn
+      socket.emit("joinThread", selectedThread.id);
     }
   }, [selectedThread]);
+
   useEffect(() => {
-    socket.on("messageAdded", async (newMessage) => {
+    socket.on("messageAdded", (newMessage) => {
       if (newMessage.thread_id === selectedThread?.id) {
-        setMessages((prev) => [...prev, newMessage]);// Cập nhật tin nhắn mới real-time
+        setMessages((prev) => {
+          const exists = prev.some(msg => msg.id === newMessage.id);
+          if (exists) return prev;
+          return [...prev, newMessage];
+        });
       }
     });
 
@@ -33,6 +36,7 @@ export const ThreadProvider = ({ children }) => {
       socket.off("messageAdded");
     };
   }, [selectedThread]);
+
   const fetchAllThreads = async () => {
     try {
       const res = await getAllThread();
@@ -45,17 +49,34 @@ export const ThreadProvider = ({ children }) => {
 
   const fetchAllMessages = async (thread_id) => {
     if (!thread_id) return;
+    setLoading(true);
     try {
       const res = await getAllMessageThread(thread_id);
-      setMessages(res);
+      setMessages(res || []);
     } catch (error) {
       console.error("Lỗi khi lấy messages:", error);
-      setMessages(null);
+      setMessages([]);
+    } finally {
+      setLoading(false);
     }
   };
-  const sendMessage = (messageData) => {
-    socket.emit("sendMessage", messageData);
+
+  const sendMessage = async (messageData) => {
+    return new Promise((resolve, reject) => {
+      try {
+        socket.emit("sendMessage", messageData, (response) => {
+          if (response.error) {
+            reject(response.error);
+          } else {
+            resolve(true);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
   };
+
   return (
     <ThreadContext.Provider
       value={{
@@ -66,6 +87,8 @@ export const ThreadProvider = ({ children }) => {
         selectedThread,
         setSelectedThread,
         sendMessage,
+        fetchAllThreads,
+        loading
       }}
     >
       {children}

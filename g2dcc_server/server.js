@@ -23,6 +23,7 @@ const cookieParser = require("cookie-parser");
 const http = require("http");
 const pool = require("./config/db");
 const { Server } = require("socket.io");
+const { uploadBase64ToCloudinary } = require("./utils/cloudinary");
 
 const app = express();
 app.use(cookieParser());
@@ -70,18 +71,32 @@ app.use("/search", searchRoutes);
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("sendMessage", async (data) => {
-    const { thread_id, sender_id, content, parent_message_id } = data;
+  socket.on("sendMessage", async (data, callback) => {
+    const { thread_id, sender_id, content, parent_message_id, img } = data;
 
-    if (!sender_id || !content || !thread_id) {
+    if (!sender_id || (!content && !img) || !thread_id) {
+      callback({ error: "Thiếu thông tin cần thiết" });
       return;
     }
 
     try {
+      // Nếu có ảnh base64, upload lên Cloudinary
+      let imgUrl = null;
+      if (img) {
+        try {
+          const result = await uploadBase64ToCloudinary(img, "forum/messages");
+          imgUrl = result.secure_url;
+        } catch (uploadError) {
+          console.error("Lỗi khi upload ảnh:", uploadError);
+          callback({ error: "Không thể upload ảnh" });
+          return;
+        }
+      }
+
       const newMessage = await pool.query(
-        `INSERT INTO message_thread (thread_id, sender_id, content, parent_message_id) 
-         VALUES ($1, $2, $3, $4) RETURNING *`,
-        [thread_id, sender_id, content, parent_message_id || null]
+        `INSERT INTO message_thread (thread_id, sender_id, content, parent_message_id, img) 
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [thread_id, sender_id, content, parent_message_id || null, imgUrl]
       );
 
       const savedMessage = newMessage.rows[0];
@@ -96,14 +111,20 @@ io.on("connection", (socket) => {
         sender_avatar: null,
       };
 
-      // Gửi tin nhắn mới với đầy đủ thông tin user
-      io.to(thread_id).emit("messageAdded", {
+      const messageWithUserInfo = {
         ...savedMessage,
         sender_name: senderInfo.sender_name,
         sender_avatar: senderInfo.sender_avatar,
-      });
+      };
+
+      // Gửi tin nhắn mới với đầy đủ thông tin user
+      io.to(thread_id).emit("messageAdded", messageWithUserInfo);
+      
+      // Gửi callback thành công
+      callback({ success: true, message: messageWithUserInfo });
     } catch (error) {
       console.error("Lỗi khi gửi tin nhắn:", error);
+      callback({ error: "Không thể gửi tin nhắn" });
     }
   });
 

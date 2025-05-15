@@ -135,7 +135,7 @@ function AdminNavbar({ collapsed }) {
   ];
 
   return (
-    <div className={`bg-white text-black transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'} h-[calc(100vh-3.5rem)] shadow-md shadow-gray-600`}>
+    <div className={`bg-white text-black transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'} h-vh shadow-md shadow-gray-600`}>
       <Menu
         mode="inline"
         items={items}

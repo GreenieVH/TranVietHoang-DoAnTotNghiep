@@ -6,6 +6,7 @@ import { useToast } from "../../context/ToastContext";
 import { TbEdit, TbSearch } from "react-icons/tb";
 import { LiaUserLockSolid } from "react-icons/lia";
 import useUsers from "../../hooks/useUsers";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -20,8 +21,22 @@ const AdminUserLists = () => {
     pageSize: 5,
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchField, setSearchField] = useState("username"); // Mặc định tìm theo tên
+  const [searchField, setSearchField] = useState("username");
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Lấy tham số tìm kiếm từ URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get("search");
+    console.log(searchQuery);
+    
+    if (searchQuery) {
+      setSearchTerm(searchQuery);
+      setSearchField("username"); // Mặc định tìm theo tên
+    }
+  }, [location.search]);
 
   // Lọc người dùng khi searchTerm hoặc searchField thay đổi
   useEffect(() => {
@@ -33,6 +48,15 @@ const AdminUserLists = () => {
       setFilteredUsers(filtered);
     }
   }, [searchTerm, searchField, users]);
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    if (value) {
+      navigate(`/admin/user-lists?search=${encodeURIComponent(value)}`, { replace: true });
+    } else {
+      navigate("/admin/user-lists", { replace: true });
+    }
+  };
 
   const handleEdit = (user) => setEditingUser(user);
 
@@ -62,7 +86,6 @@ const AdminUserLists = () => {
       title: "STT",
       key: "stt",
       render: (_, __, index) => {
-        // Tính STT dựa trên trang hiện tại và số lượng item/trang
         return (pagination.current - 1) * pagination.pageSize + index + 1;
       },
       width: 80,
@@ -160,7 +183,7 @@ const AdminUserLists = () => {
           }
           size="large"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           className="w-full max-w-md"
         />
       </div>
@@ -178,6 +201,13 @@ const AdminUserLists = () => {
           },
         }}
         bordered
+        onRow={(record) => {
+          const isHighlighted = searchTerm && 
+            record[searchField]?.toString().toLowerCase().includes(searchTerm.toLowerCase());
+          return {
+            className: isHighlighted ? "bg-yellow-400" : "",
+          };
+        }}
       />
       {editingUser && (
         <EditUserForm

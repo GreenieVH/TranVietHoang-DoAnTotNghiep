@@ -24,11 +24,16 @@ const LoginForm = () => {
     setIsSubmitting(true);
     try {
       const data = await login(values.username, values.password);
-      showToast(data.message);
+
       refreshProfile();
-      navigate("/");
+      showToast(data.message);
+      if (data.user.role === "admin" || data.user.role === "staff") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       showToast(err || "Đăng nhập thất bại", "error");
     } finally {
       setIsSubmitting(false);
@@ -76,14 +81,16 @@ const LoginForm = () => {
           <Form.Item
             name="username"
             label="Tên tài khoản"
-            rules={[{ required: true, message: "Vui lòng nhập tên tài khoản!" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập tên tài khoản!" },
+            ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="password"
             label="Mật khẩu"
-            rules={[{ required: true,message: "Vui lòng nhập mật khẩu!" }]}
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
           >
             <Input.Password />
           </Form.Item>
@@ -135,21 +142,21 @@ const LoginForm = () => {
           <Form.Item
             name="email"
             label="Email"
-            rules={[{ required: true, type: 'email' }]}
+            rules={[{ required: true, type: "email" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="password"
             label="Mật khẩu"
-            rules={[{ required: true,message: "Vui lòng nhập mật khẩu!" }]}
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
           >
             <Input.Password />
           </Form.Item>
           <Form.Item
             name="repassword"
             label="Nhập lại mật khẩu"
-            rules={[{ required: true,message: "Vui lòng nhập lại mật khẩu!" }]}
+            rules={[{ required: true, message: "Vui lòng nhập lại mật khẩu!" }]}
           >
             <Input.Password />
           </Form.Item>

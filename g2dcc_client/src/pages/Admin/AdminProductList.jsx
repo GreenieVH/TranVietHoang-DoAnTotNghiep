@@ -19,6 +19,7 @@ import { useProducts } from "../../hooks/useProducts"; // Giả sử useProducts
 import ProductForm from "../../components/features/Admin/ProductForm";
 import { deleteProduct } from "../../api/product";
 import { useToast } from "../../context/ToastContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -30,6 +31,19 @@ const AdminProductList = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Lấy tham số tìm kiếm từ URL
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get("search");
+
+    if (searchQuery) {
+      setSearchText(searchQuery);
+      setSearchField("name"); // Mặc định tìm theo tên sản phẩm
+    }
+  }, [location.search]);
 
   useEffect(() => {
     setFilteredProducts(products);
@@ -51,6 +65,15 @@ const AdminProductList = () => {
     });
 
     setFilteredProducts(filtered);
+
+    // Cập nhật URL với tham số tìm kiếm
+    if (value) {
+      navigate(`/admin/product-lists?search=${encodeURIComponent(value)}`, {
+        replace: true,
+      });
+    } else {
+      navigate("/admin/product-lists", { replace: true });
+    }
   };
 
   // Lấy danh sách categories và brands duy nhất
@@ -255,6 +278,14 @@ const AdminProductList = () => {
           showTotal: (total) => `Tổng số ${total} sản phẩm`,
         }}
         loading={loading}
+        onRow={(record) => {
+          const isHighlighted =
+            searchText &&
+            record.name.toLowerCase().includes(searchText.toLowerCase());
+          return {
+            className: isHighlighted ? "bg-yellow-400" : "",
+          };
+        }}
       />
 
       {/* Modal form cho sản phẩm */}
